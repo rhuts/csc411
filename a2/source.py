@@ -56,8 +56,18 @@ def q1():
 # End of Q1 -------------------------------------------------------------------
 
 
-def f(X, w, w0):
-    return 1 / 1 + np.exp( -(np.matmul(w.T, X) + w0)  )
+# TODO remove bc not in use
+# def f(X, w, w0):
+#     return 1 / 1 + np.exp( -(np.matmul(w.T, X) + w0)  )
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def probability(x, w, w0):
+    return sigmoid(np.dot(x, w.T) + w0)
+
+def predict(x, w, w0, threshold=0.5):
+    return probability(x, w, w0) >= threshold
 
 def q2():
     # Question 2(a)
@@ -69,6 +79,9 @@ def q2():
     X, t = gen_data(mu0, mu1, cov0, cov1, N0, N1)
 
     # FOR TESTING (below commented code)
+    print 'X'; print X
+    print 't'; print t
+
     # classToColor = np.array(['r', 'b'])
     # plt.scatter(X[:, 0], X[:, 1], color=classToColor[t], s=2)
     # plt.xlim(-3, 6); plt.ylim(-3, 6)
@@ -93,8 +106,32 @@ def q2():
     print '\naccuracy1:'; print '\t' + str(accuracy1)
 
     # second way - for w and w_0
-    # TODO calculate accuracy
-    accuracy2 = 0
+    # which is correct predictions / number of predictions
+
+
+    # calculate 1500 x 1 class prediction
+    # print 'X'
+    # print X
+    # print 'X.shape'
+    # print X.shape
+    # print 'logReg.coef_.T'
+    # print logReg.coef_.T
+    # print 'logReg.coef_.T.shape'
+    # print logReg.coef_.T.shape
+    z = predict(X, logReg.coef_, logReg.intercept_, threshold=0.5)
+
+    # compare with target vector t
+    # print 'z'
+    # print z
+    # print 'compare Z to t'
+    # print z.shape
+    # print t.shape
+    res = np.equal(z.reshape(z.size), t)
+    # print res
+    # print res.mean()
+    # print res.shape
+
+    accuracy2 = res.mean()
     print '\naccuracy2:'; print '\t' + str(accuracy2)
 
     # difference of accuracies, should be zero
