@@ -194,7 +194,7 @@ def q2():
     # P(C = 1|x) = 0.5
     # TODO write proof for solving sigmoid = 0.5 to find z=0.0
     plt.plot(np.linspace(-3, 6), -(w[0] * np.linspace(-3, 6) + logReg.intercept_[0] - 0.0) / w[1], color='k')
-    
+
     # P(C = 1|x) = 0.05
     # TODO write proof for solving sigmoid = 0.05 to find z=-2.94444
     plt.plot(np.linspace(-3, 6), -(w[0] * np.linspace(-3, 6) + logReg.intercept_[0] + 2.94444) / w[1], color='r')
@@ -227,7 +227,8 @@ def q2():
 # End of Q2 -------------------------------------------------------------------
 
 
-def q3():
+def q4():
+    pass
 
 
 # End of Q3 -------------------------------------------------------------------
@@ -236,7 +237,8 @@ def q3():
 # ------------------- Script for running the source file ---------------------\
 # q1()
 # q2()
-q3()
+# Question 3 is non-programming
+q4()
 
 # print '\n\nQuestion 4'
 # print '----------'
