@@ -3,6 +3,9 @@ import numpy.random as rnd
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from bonnerlib2 import dfContour
+import pickle
 
 
 # Question 1(a)
@@ -226,19 +229,102 @@ def q2():
 
 # End of Q2 -------------------------------------------------------------------
 
+def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test, str_question):
+
+    # generate train data from 2(a) and test data from 2(f)
+    X_train, t_train = gen_data(mu0, mu1, cov0, cov1, N0_train, N1_train)
+    X_test, t_test = gen_data(mu0, mu1, cov0, cov1, N0_test, N1_test)
+
+    # train sklearn QuadraticDiscriminantAnalysis
+    GBclf = QuadraticDiscriminantAnalysis()
+    GBclf.fit(X_train, t_train)
+
+    # compute and print out the accuracy of your classifier
+    # with the test data from q2(f)
+    accuracy = GBclf.score(X_test, t_test)
+    print '\nAccuracy of Gaussian Bayes clf ' + str_question + ':'; print '\t' + str(accuracy)
+
+    # plot the training data
+    classToColor = np.array(['r', 'b'])
+    plt.scatter(X_train[:, 0], X_train[:, 1], color=classToColor[t_train], s=2)
+
+    # plot the decision boundary using dfContour
+    dfContour(GBclf)
+    plt.xlim(-3, 6); plt.ylim(-3, 6); plt.title('Question ' + str_question + ': Decision boundary and contours')
+    plt.show()
 
 def q4():
-    pass
+
+    # Question 4(a)
+    gbclf_train_test((1, 1), (2, 2), 0, -0.9, 1000, 500, 10000, 5000, '4(a)')
 
 
-# End of Q3 -------------------------------------------------------------------
+    # Question 4(b)
+    # there are three separate regions, two red and one blue.
+    # Explain this result. Use diagrams in your explanation
+    # TODO this ^
+
+
+    # Question 4(c)
+    # Generate new training and test data that is the same as
+    # that of Question 2 except that cov1 = 0.9, instead of -0.9
+    gbclf_train_test((1, 1), (2, 2), 0, 0.9, 1000, 500, 10000, 5000, '4(c)')
+
+
+    # Question 4(d)
+    # Repeat part (c), but in the training set, put 1,000 points in class 0
+    # and 5,000 in class 1; and in the test set, 10,000 points in class 0
+    # and 50,000 in class 1
+    gbclf_train_test((1, 1), (2, 2), 0, 0.9, 1000, 5000, 10000, 50000, '4(d)')
+
+
+    # Question 4(e)
+    # TODO
+    # this question is T.B.A.
+
+
+# End of Q4 -------------------------------------------------------------------
+
+def q5():
+
+    # open train and test data
+    with open('mnist.pickle','rb') as f:
+        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
+
+    # playing around
+    # digit = Xtrain[0, :]
+    # digit_img = digit.reshape((28, 28))
+    # plt.imshow(digit_img, cmap='Greys', interpolation='nearest')
+    # plt.show()
+
+    # Question 5(a)
+    # Choose 25 MNIST images at random (without replacement) and display
+    # them in a single figure, arranged in a 5 x 5 grid.
+
+    # choose 25
+    digits = rnd.randint(0, Xtrain.shape[0], 25)
+    print 'digits'
+    print digits
+
+    # display in 5 x 5
+    fig, axs = plt.subplots(5, 5)
+    plt.suptitle('Question 5(a): 25 random MNIST images.')
+    for i in range(len(digits)):
+        axs[i / 5, i % 5].imshow(Xtrain[digits[i]].reshape((28, 28)), cmap='Greys', interpolation='nearest')
+        axs[i / 5, i % 5].axis('off')
+
+    plt.show()
+
+
+# End of Q5 -------------------------------------------------------------------
 
 
 # ------------------- Script for running the source file ---------------------\
 # q1()
 # q2()
 # Question 3 is non-programming
-q4()
+# q4()
+q5()
 
 # print '\n\nQuestion 4'
 # print '----------'
