@@ -7,6 +7,14 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from bonnerlib2 import dfContour
 import pickle
 
+# TODO docstrings for functions once done
+# TODO proofs
+
+
+
+
+
+##########  QUESTION 1  ############
 
 # Question 1(a)
 '''
@@ -47,8 +55,6 @@ def q1():
 
 
     # Question 1(c)
-    print 'X'; print X
-    print 't'; print t
     classToColor = np.array(['r', 'b'])
     plt.scatter(X[:, 0], X[:, 1], color=classToColor[t], s=2)
     plt.xlim(-3, 6); plt.ylim(-3, 6)
@@ -74,19 +80,13 @@ def get_metrics(X, t, N0, N1, logReg, threshold=0.5):
     # calculate 1500 x 1 class prediction
     z = predict(X, logReg.coef_, logReg.intercept_, threshold=threshold)
     z = z.reshape(z.size)
-    col_z = z[:, np.newaxis] # turn into column vector
-    # print 'z'
-    # print z
-    # print z.shape
 
-    col_t = t[:, np.newaxis] # turn into column vector
-    # print 't'
-    # print t
-    # print t.shape
+    # change to column vectors
+    col_z = z[:, np.newaxis]
+    col_t = t[:, np.newaxis]
 
-    table = np.concatenate((col_z, col_t), axis=1) # each row contains [prediction, target]
-    # print 'table'
-    # print table
+    # each row contains [prediction, target]
+    table = np.concatenate((col_z, col_t), axis=1)
 
     # test and counts number of rows that have [1, 1] which is a True Positive
     TP = np.count_nonzero(np.all(table, axis=1))
@@ -96,17 +96,17 @@ def get_metrics(X, t, N0, N1, logReg, threshold=0.5):
     FP_table[:, 0] = 1
     FP = np.count_nonzero(np.all(np.equal(table, FP_table), axis=1))
 
-    # test and counts number of rows that have [0, 1] which is a False Negative
-    # TODO replace TP + FN with N1
-    # FN_table = np.zeros(table.shape)
-    # FN_table[:, 1] = 1
-    # FN = np.count_nonzero(np.all(np.equal(table, FN_table), axis=1))
-
     print '\nP(C = 1|x) = ' + str(threshold)
     print '\tprecision'
     print '\t\t' + str(TP / (float(TP) + FP))
     print '\trecall P(C = 1|x) = ' + str(threshold)
     print '\t\t' + str(TP / (float(N1)))
+
+
+
+
+
+##########  QUESTION 2  ############
 
 def q2():
     # Question 2(a)
@@ -117,16 +117,6 @@ def q2():
     cov0, cov1 = 0, -0.9
     X, t = gen_data(mu0, mu1, cov0, cov1, N0, N1)
 
-    # FOR TESTING (below commented code)
-    print 'X'; print X
-    print 't'; print t
-
-    # classToColor = np.array(['r', 'b'])
-    # plt.scatter(X[:, 0], X[:, 1], color=classToColor[t], s=2)
-    # plt.xlim(-3, 6); plt.ylim(-3, 6)
-    # plt.title('Question 1(c): sample cluster data')
-    # plt.show()
-
 
     # Question 2(b)
     logReg = LogisticRegression()
@@ -134,7 +124,6 @@ def q2():
     logReg.fit(X, t)
 
     print '\nbias term w_0:'; print '\t' + str(logReg.intercept_)
-
     print '\nweight vector w:'; print '\t' + str(logReg.coef_)
 
 
@@ -229,6 +218,11 @@ def q2():
 
 # End of Q2 -------------------------------------------------------------------
 
+
+
+
+##########  QUESTION 4  ############
+
 def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test, str_question):
 
     # generate train data from 2(a) and test data from 2(f)
@@ -260,7 +254,7 @@ def q4():
 
 
     # Question 4(b)
-    # there are three separate regions, two red and one blue.
+    # part a) has three separate regions, two red and one blue.
     # Explain this result. Use diagrams in your explanation
     # TODO this ^
 
@@ -285,32 +279,24 @@ def q4():
 
 # End of Q4 -------------------------------------------------------------------
 
+
+
+
+##########  QUESTION 5  ############
+
 def q5():
 
     # open train and test data
     with open('mnist.pickle','rb') as f:
         Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
 
-    # playing around
-    # digit = Xtrain[0, :]
-    # digit_img = digit.reshape((28, 28))
-    # plt.imshow(digit_img, cmap='Greys', interpolation='nearest')
-    # plt.show()
-
     # Question 5(a)
-    # Choose 25 MNIST images at random (without replacement) and display
-    # them in a single figure, arranged in a 5 x 5 grid.
-
-    # choose 25
-    digits = rnd.randint(0, Xtrain.shape[0], 25)
-    print 'digits'
-    print digits
-
-    # display in 5 x 5
+    # display 25 of the MNIST images at random (w/o replacement) in 5x5 subplot
+    chosen_ind = rnd.randint(0, Xtrain.shape[0], 25)
     fig, axs = plt.subplots(5, 5)
     plt.suptitle('Question 5(a): 25 random MNIST images.')
-    for i in range(len(digits)):
-        axs[i / 5, i % 5].imshow(Xtrain[digits[i]].reshape((28, 28)), cmap='Greys', interpolation='nearest')
+    for i in range(len(chosen_ind)):
+        axs[i / 5, i % 5].imshow(Xtrain[chosen_ind[i]].reshape((28, 28)), cmap='Greys', interpolation='nearest')
         axs[i / 5, i % 5].axis('off')
 
     plt.show()
@@ -325,11 +311,4 @@ def q5():
 # Question 3 is non-programming
 # q4()
 q5()
-
-# print '\n\nQuestion 4'
-# print '----------'
-# print '\nQuestion 4(b):'
-# print '\t6 basis functions'
-# q4b()
-
 # ------------------- End of script for running the source file --------------/
