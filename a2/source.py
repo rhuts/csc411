@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
 from bonnerlib2 import dfContour
 import pickle
+import time
 
 # TODO docstrings for functions once done
 # TODO proofs
@@ -280,6 +282,20 @@ def q4():
 # End of Q4 -------------------------------------------------------------------
 
 
+# TODO docstring
+def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
+    start = time.time()
+    model.fit(Xtrain, Ytrain)
+    end = time.time()
+    duration = end - start
+    print '\nTime required to fit the model {}: {}'.format(str_question, duration)
+
+    # compute and print out the training and test accuracies
+    accuracy_train = model.score(Xtrain, Ytrain)
+    accuracy_test = model.score(Xtest, Ytest)
+    print '\nAccuracy of classifier {}:'.format(str_question); print '\tTraining: ' + str(accuracy_train); print '\tTesting: ' + str(accuracy_test)
+
+
 
 
 ##########  QUESTION 5  ############
@@ -289,6 +305,7 @@ def q5():
     # open train and test data
     with open('mnist.pickle','rb') as f:
         Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
+
 
     # Question 5(a)
     # display 25 of the MNIST images at random (w/o replacement) in 5x5 subplot
@@ -300,6 +317,55 @@ def q5():
         axs[i / 5, i % 5].axis('off')
 
     plt.show()
+
+
+
+    # Question 5(b)
+
+    GBclf = QuadraticDiscriminantAnalysis()
+    train_test_model(GBclf, '5(b)', Xtrain, Ytrain, Xtest, Ytest)
+
+
+
+
+    # Question 5(c)
+
+    GNBclf = GaussianNB()
+    train_test_model(GNBclf, '5(c)', Xtrain, Ytrain, Xtest, Ytest)
+   
+
+    # Question 5(d)
+
+    # add Gaussian noise
+    sigma = 0.1
+    noise = sigma * np.random.normal(size=np.shape(Xtrain))
+    Xtrain = Xtrain + noise
+
+    # repeat 5(a)
+    fig, axs = plt.subplots(5, 5)
+    plt.suptitle('Question 5(d): 25 random MNIST images after adding Gaussian noise.')
+    for i in range(len(chosen_ind)):
+        axs[i / 5, i % 5].imshow(Xtrain[chosen_ind[i]].reshape((28, 28)), cmap='Greys', interpolation='nearest')
+        axs[i / 5, i % 5].axis('off')
+
+    plt.show()
+
+    # repeat 5(b)
+    GBclf = QuadraticDiscriminantAnalysis()
+    train_test_model(GBclf, '5(b) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
+
+
+    # repeat 5(c)
+    GNBclf = GaussianNB()
+    train_test_model(GNBclf, '5(c) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
+
+
+    # TODO non programming explanation of why adding noise improves accuracy
+    # related to the inductive bias of Gaussian Bayes?
+    # given a particular class membership, the probabilities of particular attributes
+    # having particular values are independent of each other
+
+
 
 
 # End of Q5 -------------------------------------------------------------------
