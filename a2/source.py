@@ -276,7 +276,6 @@ def q4():
 
     # Question 4(e)
     # TODO
-    # this question is T.B.A.
 
 
 # End of Q4 -------------------------------------------------------------------
@@ -334,6 +333,8 @@ def q5():
     train_test_model(GNBclf, '5(c)', Xtrain, Ytrain, Xtest, Ytest)
    
 
+
+
     # Question 5(d)
 
     # add Gaussian noise
@@ -350,12 +351,12 @@ def q5():
 
     plt.show()
 
-    # repeat 5(b)
+    # repeat 5(b) with noise
     GBclf = QuadraticDiscriminantAnalysis()
     train_test_model(GBclf, '5(b) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
 
 
-    # repeat 5(c)
+    # repeat 5(c) with noise
     GNBclf = GaussianNB()
     train_test_model(GNBclf, '5(c) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
 
