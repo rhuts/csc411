@@ -1,6 +1,14 @@
 import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
+
+# disable warnings in sklearn
+# needs to be above sklearn imports
+# def warn(*args, **kwargs):
+#     pass
+# import warnings
+# warnings.warn = warn
+
 from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
@@ -111,6 +119,8 @@ def get_metrics(X, t, N0, N1, logReg, threshold=0.5):
 ##########  QUESTION 2  ############
 
 def q2():
+    print '\nQUESTION 2.\n-----------'
+
     # Question 2(a)
     # Use gen data to generate training data with 1000 points in class 0 and
     # 500 points in class 1. Use the same means and covariances as in Question 1(b).
@@ -121,19 +131,21 @@ def q2():
 
 
     # Question 2(b)
+
+    print '\nQuestion 2(b):'
     logReg = LogisticRegression()
-    print logReg
     logReg.fit(X, t)
 
-    print '\nbias term w_0:'; print '\t' + str(logReg.intercept_)
-    print '\nweight vector w:'; print '\t' + str(logReg.coef_)
+    print '\tbias term w_0:'; print '\t\t' + str(logReg.intercept_)
+    print '\tweight vector w:'; print '\t\t' + str(logReg.coef_)
 
 
     # Question 2(c)
 
+    print '\nQuestion 2(c):'
     # first way - with score() method
     accuracy1 = logReg.score(X, t)
-    print '\naccuracy1:'; print '\t' + str(accuracy1)
+    print '\taccuracy1:'; print '\t\t' + str(accuracy1)
 
     # second way - for w and w_0
     # which is correct predictions / number of predictions
@@ -143,11 +155,11 @@ def q2():
 
     # compare with target vector t
     accuracy2 = np.equal(z.reshape(z.size), t).mean()
-    print '\naccuracy2:'; print '\t' + str(accuracy2)
+    print '\taccuracy2:'; print '\t\t' + str(accuracy2)
 
     # difference of accuracies, should be zero
     accuracy_diff = accuracy1 - accuracy2
-    print '\naccuracy difference (should be zero):'; print '\t' + str(accuracy_diff)
+    print '\taccuracy difference (should be zero):'; print '\t\t' + str(accuracy_diff)
 
 
     # Question 2(d)
@@ -238,7 +250,7 @@ def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test,
     # compute and print out the accuracy of your classifier
     # with the test data from q2(f)
     accuracy = GBclf.score(X_test, t_test)
-    print '\nAccuracy of Gaussian Bayes clf ' + str_question + ':'; print '\t' + str(accuracy)
+    print '\tAccuracy of Gaussian Bayes clf ' + str_question + ':'; print '\t\t' + str(accuracy)
 
     # plot the training data
     classToColor = np.array(['r', 'b'])
@@ -251,7 +263,11 @@ def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test,
 
 def q4():
 
+    print '\nQUESTION 4.\n-----------'
+
     # Question 4(a)
+
+    print '\nQuestion 4(a):'
     gbclf_train_test((1, 1), (2, 2), 0, -0.9, 1000, 500, 10000, 5000, '4(a)')
 
 
@@ -264,6 +280,7 @@ def q4():
     # Question 4(c)
     # Generate new training and test data that is the same as
     # that of Question 2 except that cov1 = 0.9, instead of -0.9
+    print '\nQuestion 4(c):'
     gbclf_train_test((1, 1), (2, 2), 0, 0.9, 1000, 500, 10000, 5000, '4(c)')
 
 
@@ -271,6 +288,7 @@ def q4():
     # Repeat part (c), but in the training set, put 1,000 points in class 0
     # and 5,000 in class 1; and in the test set, 10,000 points in class 0
     # and 50,000 in class 1
+    print '\nQuestion 4(d):'
     gbclf_train_test((1, 1), (2, 2), 0, 0.9, 1000, 5000, 10000, 50000, '4(d)')
 
 
@@ -287,12 +305,12 @@ def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
     model.fit(Xtrain, Ytrain)
     end = time.time()
     duration = end - start
-    print '\nTime required to fit the model {}: {}'.format(str_question, duration)
+    print '\tTime to fit model {}: {}'.format(str_question, duration)
 
     # compute and print out the training and test accuracies
     accuracy_train = model.score(Xtrain, Ytrain)
     accuracy_test = model.score(Xtest, Ytest)
-    print '\nAccuracy of classifier {}:'.format(str_question); print '\tTraining: ' + str(accuracy_train); print '\tTesting: ' + str(accuracy_test)
+    print '\t\tAccuracy of classifier {}:'.format(str_question); print '\t\t\tTraining: ' + str(accuracy_train); print '\t\t\tTesting: ' + str(accuracy_test)
 
 
 
@@ -300,6 +318,7 @@ def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
 ##########  QUESTION 5  ############
 
 def q5():
+    print '\nQUESTION 5.\n-----------'
 
     # open train and test data
     with open('mnist.pickle','rb') as f:
@@ -320,7 +339,8 @@ def q5():
 
 
     # Question 5(b)
-
+    # train full Gaussian Bayes classifier
+    print '\nQuestion 5(b):'
     GBclf = QuadraticDiscriminantAnalysis()
     train_test_model(GBclf, '5(b)', Xtrain, Ytrain, Xtest, Ytest)
 
@@ -328,7 +348,8 @@ def q5():
 
 
     # Question 5(c)
-
+    # train Gaussian Naive Bayes classifier
+    print '\nQuestion 5(c):'
     GNBclf = GaussianNB()
     train_test_model(GNBclf, '5(c)', Xtrain, Ytrain, Xtest, Ytest)
    
@@ -336,7 +357,6 @@ def q5():
 
 
     # Question 5(d)
-
     # add Gaussian noise
     sigma = 0.1
     noise = sigma * np.random.normal(size=np.shape(Xtrain))
@@ -351,14 +371,19 @@ def q5():
 
     plt.show()
 
+
+
+    # Question 5(e)
+
+    print '\nQuestion 5(e):'
     # repeat 5(b) with noise
     GBclf = QuadraticDiscriminantAnalysis()
-    train_test_model(GBclf, '5(b) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
+    train_test_model(GBclf, '( full Bayes from 5(b) repeated with noisy data )', Xtrain, Ytrain, Xtest, Ytest); print ''
 
 
     # repeat 5(c) with noise
     GNBclf = GaussianNB()
-    train_test_model(GNBclf, '5(c) (with noisy data)', Xtrain, Ytrain, Xtest, Ytest)
+    train_test_model(GNBclf, '( full Bayes from 5(c) repeated with noisy data )', Xtrain, Ytrain, Xtest, Ytest); print ''
 
 
     # TODO non programming explanation of why adding noise improves accuracy
@@ -366,6 +391,56 @@ def q5():
     # given a particular class membership, the probabilities of particular attributes
     # having particular values are independent of each other
 
+
+
+
+    # Question 5(f)
+
+    print '\nQuestion 5(f):'
+    # repeat 5(e) using only the first 6000 elements of the noisy training data
+    Xtrain_subset = Xtrain[0:6000, :]
+    Ytrain_subset = Ytrain[0:6000]
+
+    # full Bayes
+    GBclf = QuadraticDiscriminantAnalysis()
+    train_test_model(GBclf, '( full Bayes from 5(e) repeated with only 6000 elements )', Xtrain_subset, Ytrain_subset, Xtest, Ytest); print ''
+
+    # Naive Bayes
+    GNBclf = GaussianNB()
+    train_test_model(GNBclf, '( Naive Bayes from 5(e) repeated with only 6000 elements )', Xtrain_subset, Ytrain_subset, Xtest, Ytest); print ''
+
+
+    # TODO non programming explanation
+    # Provide an interpretation of all the training and test accuracies
+    # in this part and in part (e)
+
+
+
+    # Question 5(g)
+    # display the mean vector for each digit that the Gaussian Naive Bayes 
+    # classifier estimates
+    fig, axs = plt.subplots(3, 4)
+    plt.suptitle('Question 5(g): means for each digit class.')
+
+    for i in range(len(GNBclf.theta_)):
+        axs[i / 4, i % 4].imshow(GNBclf.theta_[i].reshape((28, 28)), cmap='Greys')
+
+    plt.show()
+
+
+    # TODO non programming explanation
+    # Using these images, give a simple
+    # and brief interpretation of what Gausian naive Bayes does
+
+
+    # TODO non programming explanation
+    # what happened to the background noise that was in the training images?
+
+
+
+
+    # Question 5(h)
+    # TODO T.B.A.
 
 
 
