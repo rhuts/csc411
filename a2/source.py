@@ -74,16 +74,28 @@ def q1():
 
 # End of Q1 -------------------------------------------------------------------
 
-
+'''
+Sigmoid function.
+'''
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
+'''
+Probability function.
+'''
 def probability(x, w, w0):
     return sigmoid(np.dot(x, w.T) + w0)
 
+'''
+Predicts the class with a specific threshold.
+'''
 def predict(x, w, w0, threshold=0.5):
     return probability(x, w, w0) >= threshold
 
+
+'''
+Calculates precision and recall.
+'''
 def get_metrics(X, t, N0, N1, logReg, threshold=0.5):
 
     # P(C = 1|x) = threshold
@@ -106,11 +118,9 @@ def get_metrics(X, t, N0, N1, logReg, threshold=0.5):
     FP_table[:, 0] = 1
     FP = np.count_nonzero(np.all(np.equal(table, FP_table), axis=1))
 
-    print '\nP(C = 1|x) = ' + str(threshold)
-    print '\tprecision'
-    print '\t\t' + str(TP / (float(TP) + FP))
-    print '\trecall P(C = 1|x) = ' + str(threshold)
-    print '\t\t' + str(TP / (float(N1)))
+    print '\tP(C = 1|x) = ' + str(threshold)
+    print '\t\tprecision'; print '\t\t\t' + str(TP / (float(TP) + FP))
+    print '\t\trecall'; print '\t\t\t' + str(TP / (float(N1)))
 
 
 
@@ -176,7 +186,7 @@ def q2():
 
     # title the figure
     plt.xlim(-3, 6); plt.ylim(-3, 6); plt.title('Question 2(d): training data and decision boundary')
-    plt.show() # TODO uncomment
+    plt.show()
 
 
     # Question 2(e)
@@ -220,6 +230,7 @@ def q2():
 
     # Question 2(g)
     # Compute the precision and recall for each of the three contours in part (e)
+    print '\nQuestion 2(g):'
 
     # P(C = 1|x) = 0.6
     get_metrics(X, t, N0, N1, logReg, threshold=0.6)
@@ -237,6 +248,10 @@ def q2():
 
 ##########  QUESTION 4  ############
 
+'''
+Trains a Gaussian Bayes classifier, prints its accuracy, and
+displays the the decision boundaries and contours ontop of the training data.
+'''
 def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test, str_question):
 
     # generate train data from 2(a) and test data from 2(f)
@@ -294,12 +309,17 @@ def q4():
 
     # Question 4(e)
     # TODO
+    # write a Python function myGDA(Xtrain,Ttrain,Xtest,Ttest) that performs
+    # Gaussian DiscriminantAnalysis for two classes
 
 
 # End of Q4 -------------------------------------------------------------------
 
 
-# TODO docstring
+'''
+Fits a given model to the training data, prints the time taken for fitting and
+the training and testing accuracies of the model.
+'''
 def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
     start = time.time()
     model.fit(Xtrain, Ytrain)
@@ -440,7 +460,9 @@ def q5():
 
 
     # Question 5(h)
-    # TODO T.B.A.
+    # TODO
+    # Write a Python function myGNB(Xtrain,Ttrain,Xtest,Ttest) that performs
+    # Gaussian naive Bayes for multi-class classification
 
 
 
@@ -451,6 +473,6 @@ def q5():
 # q1()
 # q2()
 # Question 3 is non-programming
-# q4()
-q5()
+q4()
+# q5()
 # ------------------- End of script for running the source file --------------/
