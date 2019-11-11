@@ -168,7 +168,7 @@ def q2():
     print '\taccuracy2:'; print '\t\t' + str(accuracy2)
 
     # difference of accuracies, should be zero
-    accuracy_diff = accuracy1 - accuracy2
+    accuracy_diff = abs(accuracy1 - accuracy2)
     print '\taccuracy difference (should be zero):'; print '\t\t' + str(accuracy_diff)
 
 
@@ -319,6 +319,8 @@ def q4():
 '''
 Fits a given model to the training data, prints the time taken for fitting and
 the training and testing accuracies of the model.
+
+Returns the training and testing accuracy for use in Question 5(h)
 '''
 def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
     start = time.time()
@@ -332,10 +334,95 @@ def train_test_model(model, str_question, Xtrain, Ytrain, Xtest, Ytest):
     accuracy_test = model.score(Xtest, Ytest)
     print '\t\tAccuracy of classifier {}:'.format(str_question); print '\t\t\tTraining: ' + str(accuracy_train); print '\t\t\tTesting: ' + str(accuracy_test)
 
-
+    return accuracy_train, accuracy_test
 
 
 ##########  QUESTION 5  ############
+
+'''
+Evaluate Gaussian pdf for dataset X with mean and std_dev.
+'''
+def gaussian_pdf(X, mean, std_dev):
+    exponent = np.exp(-((X - mean)**2 / (2 * std_dev**2 )))
+    return (1 / (std_dev * (np.sqrt(2 * np.pi)))) * exponent
+
+'''
+Calculates accuracy between predicted and target values.
+'''
+def get_accuracy(y, t):
+    return np.sum(np.equal(y, t)) / float(t.size)
+
+'''
+Performs Gaussian naive Bayes for multi-class classification for any number
+of classes and data of any dimensionality.
+Fits a Gaussian naive Bayes classifier to the training data
+
+Returns both the training and test accuracies.
+'''
+def myGNB(Xtrain, Ttrain, Xtest, Ttest):
+
+    # sort data by class
+    XT_train = np.hstack((Xtrain, Ttrain.reshape((Ttrain.size, 1)))) # add class label as last column
+    XT_train = XT_train[XT_train[:,-1].argsort()] # sort by last column, decreasing
+
+
+    # get mean and std_dev of each class
+    K = np.unique(XT_train[:, -1]).size # number of classes
+
+    d = Xtrain.shape[1] # number of features
+
+    mean_vectors = np.zeros((K, d))
+    std_devs = np.zeros((K, d))
+
+    probabilities_train = np.zeros((Xtrain.shape[0], K)) # data inputs x class probabilities
+    probabilities_test = np.zeros((Xtest.shape[0], K)) # data inputs x class probabilities
+
+    for c in range(K):
+
+        # get boundaries for class in data
+        start_c = np.where(XT_train[:, -1] == c)[0][0]
+        if c == K-1:
+            # last class ends at end of data
+            end_c = XT_train.shape[0]
+        else:
+            # non-last class ends before next class
+            end_c = np.where(XT_train[:, -1] == c+1)[0][0] # NOTE: use as exclusive bound
+        
+        chunk = XT_train[start_c:end_c, :-1] # select this class data without label column
+
+        # compute mean vector for this class
+        sums = np.sum(chunk, axis=0) # sum each column
+        mean_vec = sums / float(chunk.shape[0]) # divide by num of observations in this class
+        mean_vectors[c] = mean_vec # save mean vector for this class
+
+
+        # compute std_dev
+        diff_squared = np.square(chunk - mean_vectors[c])
+        variance = np.sum(diff_squared, axis=0) / float(chunk.shape[0] - 1) # also divide by N - 1
+        std_devs[c] = np.sqrt(variance)
+
+
+        # input test data into gaussian pdf with mean and std_dev found above
+        pdf_train = gaussian_pdf(Xtrain, mean_vectors[c], std_devs[c]) 
+        pdf_test = gaussian_pdf(Xtest, mean_vectors[c], std_devs[c])
+
+        # P(x_1 | C = 0) * P(x_2 | C = 0) * ...
+        class_likelihood_train = np.prod(pdf_train, axis=1)
+        class_likelihood_test = np.prod(pdf_test, axis=1)
+
+        prior = chunk.shape[0] / float(XT_train.shape[0])
+        probability_of_curr_class_per_row_train = class_likelihood_train * prior
+        probability_of_curr_class_per_row_test = class_likelihood_test * prior
+        probabilities_train[:, c] = probability_of_curr_class_per_row_train
+        probabilities_test[:, c] = probability_of_curr_class_per_row_test
+    
+    # find the class with the largest probability in each row
+    ytrain = np.argmax(probabilities_train, axis=1)
+    ytest = np.argmax(probabilities_test, axis=1)
+
+    return get_accuracy(ytrain, Ttrain), get_accuracy(ytest, Ttest)
+
+
 
 def q5():
     print '\nQUESTION 5.\n-----------'
@@ -427,7 +514,7 @@ def q5():
 
     # Naive Bayes
     GNBclf = GaussianNB()
-    train_test_model(GNBclf, '( Naive Bayes from 5(e) repeated with only 6000 elements )', Xtrain_subset, Ytrain_subset, Xtest, Ytest); print ''
+    accuracy5f_naive_train, accuracy5f_naive_test = train_test_model(GNBclf, '( Naive Bayes from 5(e) repeated with only 6000 elements )', Xtrain_subset, Ytrain_subset, Xtest, Ytest); print ''
 
 
     # TODO non programming explanation
@@ -460,9 +547,51 @@ def q5():
 
 
     # Question 5(h)
-    # TODO
     # Write a Python function myGNB(Xtrain,Ttrain,Xtest,Ttest) that performs
     # Gaussian naive Bayes for multi-class classification
+    print '\nQuestion 5(h):'
+    accuracy5h_train, accuracy5h_test = myGNB(Xtrain_subset, Ytrain_subset, Xtest, Ytest)
+
+    # Print the training and test errors
+    print '\tAccuracy of classifier:'; print '\t\tTraining: ' + str(accuracy5h_train); print '\t\tTesting: ' + str(accuracy5h_test)
+
+    # Print the difference in the training and testing errors against 5(f)
+    print '\tDifference in training and test accuracy vs 5(f):'; print '\t\tDiff. train (should be below 0.001): {}'.format(abs(accuracy5f_naive_train - accuracy5h_train)); print '\t\tDiff. test: {}'.format(abs(accuracy5f_naive_test - accuracy5h_test)); 
+
+
+def testq5():
+    # open train and test data
+    with open('mnist.pickle','rb') as f:
+        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
+
+
+    # Question 5(d)
+    # add Gaussian noise
+    sigma = 0.1
+    noise = sigma * np.random.normal(size=np.shape(Xtrain))
+    Xtrain = Xtrain + noise
+
+
+    # Question 5(f)
+    Xtrain_subset = Xtrain[0:6000, :]
+    Ytrain_subset = Ytrain[0:6000]
+
+
+    # Question 5(h)
+    # FINALLY
+    accuracy5h_train, accuracy5h_test = myGNB(Xtrain_subset, Ytrain_subset, Xtest, Ytest)
+
+    # Print the training and test
+    # errors. They should be identical to the errors for naive Bayes in part (f).
+    print '\tAccuracy of classifier:'; print '\t\tTraining: ' + str(accuracy5h_train); print '\t\tTesting: ' + str(accuracy5h_test)
+
+    # Print
+    # out the difference in the two training errors and the difference in the two test
+    # errors
+
+
+
+
 
 
 
@@ -473,6 +602,7 @@ def q5():
 # q1()
 # q2()
 # Question 3 is non-programming
-q4()
-# q5()
+# q4()
+q5()
+# testq5() # TODO REMOVE THIS BEFORE SUBMISSION FOR MARKS
 # ------------------- End of script for running the source file --------------/
