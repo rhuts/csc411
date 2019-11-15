@@ -195,25 +195,14 @@ def q2():
  
     # draw three probability contours on top of the data: 
 
-    # CS = plt.contour(xx, yy, Z, levels=[-3], colors='r', linestyles='solid')
-    # plt.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
-
-
-    # z = predict(X, logReg.coef_, logReg.intercept_, threshold=0.5)
-    # plt.contour(X[:, 0], X[:, 1], z)
-
     # P(C = 1|x) = 0.6
-    # TODO write proof for solving sigmoid = 0.6 to find z=0.405465
-    # TODO initial whiteboard attempt to prove might have wrong sign
-    plt.plot(np.linspace(-3, 6), -(w[0] * np.linspace(-3, 6) + logReg.intercept_[0] - 0.405465) / w[1], color='b')
+    plt.plot(np.linspace(-3, 6), (-logReg.intercept_[0] + 0.405465 - w[0] * np.linspace(-3, 6)) / w[1], color='b')
 
     # P(C = 1|x) = 0.5
-    # TODO write proof for solving sigmoid = 0.5 to find z=0.0
-    plt.plot(np.linspace(-3, 6), -(w[0] * np.linspace(-3, 6) + logReg.intercept_[0] - 0.0) / w[1], color='k')
+    plt.plot(np.linspace(-3, 6), (-logReg.intercept_[0] - w[0] * np.linspace(-3, 6)) / w[1], color='k')
 
     # P(C = 1|x) = 0.05
-    # TODO write proof for solving sigmoid = 0.05 to find z=-2.94444
-    plt.plot(np.linspace(-3, 6), -(w[0] * np.linspace(-3, 6) + logReg.intercept_[0] + 2.94444) / w[1], color='r')
+    plt.plot(np.linspace(-3, 6), (-logReg.intercept_[0] -2.9444 - w[0] * np.linspace(-3, 6)) / w[1], color='r')
 
     plt.xlim(-3, 6); plt.ylim(-3, 6); plt.title('Question 2(e): three contours')
     plt.show()
@@ -273,7 +262,8 @@ def gbclf_train_test(mu0, mu1, cov0, cov1, N0_train, N1_train, N0_test, N1_test,
 
     # plot the decision boundary using dfContour
     dfContour(GBclf)
-    plt.xlim(-3, 6); plt.ylim(-3, 6); plt.title('Question ' + str_question + ': Decision boundary and contours')
+    # plt.xlim(-3, 6); plt.ylim(-3, 6); 
+    plt.title('Question ' + str_question + ': Decision boundary and contours')
     plt.show()
 
 def q4():
@@ -287,9 +277,7 @@ def q4():
 
 
     # Question 4(b)
-    # part a) has three separate regions, two red and one blue.
-    # Explain this result. Use diagrams in your explanation
-    # TODO this ^
+    # this is part of the non-programming questions
 
 
     # Question 4(c)
@@ -490,14 +478,7 @@ def q5():
 
     # repeat 5(c) with noise
     GNBclf = GaussianNB()
-    train_test_model(GNBclf, '( full Bayes from 5(c) repeated with noisy data )', Xtrain, Ytrain, Xtest, Ytest); print ''
-
-
-    # TODO non programming explanation of why adding noise improves accuracy
-    # related to the inductive bias of Gaussian Bayes?
-    # given a particular class membership, the probabilities of particular attributes
-    # having particular values are independent of each other
-
+    train_test_model(GNBclf, '( Naive Bayes from 5(c) repeated with noisy data )', Xtrain, Ytrain, Xtest, Ytest); print ''
 
 
 
@@ -517,12 +498,6 @@ def q5():
     accuracy5f_naive_train, accuracy5f_naive_test = train_test_model(GNBclf, '( Naive Bayes from 5(e) repeated with only 6000 elements )', Xtrain_subset, Ytrain_subset, Xtest, Ytest); print ''
 
 
-    # TODO non programming explanation
-    # Provide an interpretation of all the training and test accuracies
-    # in this part and in part (e)
-
-
-
     # Question 5(g)
     # display the mean vector for each digit that the Gaussian Naive Bayes 
     # classifier estimates
@@ -531,19 +506,10 @@ def q5():
 
     for i in range(len(GNBclf.theta_)):
         axs[i / 4, i % 4].imshow(GNBclf.theta_[i].reshape((28, 28)), cmap='Greys')
-
+        axs[i / 4, i % 4].axis('off')
+    axs[2, 2].axis('off')
+    axs[2, 3].axis('off')
     plt.show()
-
-
-    # TODO non programming explanation
-    # Using these images, give a simple
-    # and brief interpretation of what Gausian naive Bayes does
-
-
-    # TODO non programming explanation
-    # what happened to the background noise that was in the training images?
-
-
 
 
     # Question 5(h)
