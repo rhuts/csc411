@@ -17,11 +17,6 @@ from bonnerlib2 import dfContour
 import pickle
 import time
 
-# TODO docstrings for functions once done
-# TODO proofs
-
-
-
 
 
 ##########  QUESTION 1  ############
@@ -296,7 +291,8 @@ def q4():
 
 
     # Question 4(e)
-    # TODO
+    print '\nQuestion 4(e):'
+    print '\tI don\'t know'
     # write a Python function myGDA(Xtrain,Ttrain,Xtest,Ttest) that performs
     # Gaussian DiscriminantAnalysis for two classes
 
@@ -525,37 +521,6 @@ def q5():
     print '\tDifference in training and test accuracy vs 5(f):'; print '\t\tDiff. train (should be below 0.001): {}'.format(abs(accuracy5f_naive_train - accuracy5h_train)); print '\t\tDiff. test: {}'.format(abs(accuracy5f_naive_test - accuracy5h_test)); 
 
 
-def testq5():
-    # open train and test data
-    with open('mnist.pickle','rb') as f:
-        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
-
-
-    # Question 5(d)
-    # add Gaussian noise
-    sigma = 0.1
-    noise = sigma * np.random.normal(size=np.shape(Xtrain))
-    Xtrain = Xtrain + noise
-
-
-    # Question 5(f)
-    Xtrain_subset = Xtrain[0:6000, :]
-    Ytrain_subset = Ytrain[0:6000]
-
-
-    # Question 5(h)
-    # FINALLY
-    accuracy5h_train, accuracy5h_test = myGNB(Xtrain_subset, Ytrain_subset, Xtest, Ytest)
-
-    # Print the training and test
-    # errors. They should be identical to the errors for naive Bayes in part (f).
-    print '\tAccuracy of classifier:'; print '\t\tTraining: ' + str(accuracy5h_train); print '\t\tTesting: ' + str(accuracy5h_test)
-
-    # Print
-    # out the difference in the two training errors and the difference in the two test
-    # errors
-
-
 
 
 
@@ -565,10 +530,9 @@ def testq5():
 
 
 # ------------------- Script for running the source file ---------------------\
-# q1()
-# q2()
+q1()
+q2()
 # Question 3 is non-programming
-# q4()
+q4()
 q5()
-# testq5() # TODO REMOVE THIS BEFORE SUBMISSION FOR MARKS
 # ------------------- End of script for running the source file --------------/
