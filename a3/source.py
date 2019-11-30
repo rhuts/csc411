@@ -2,6 +2,7 @@ import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
 from bonnerlib2 import dfContour
+import pickle
 
 # disable warnings in sklearn
 # needs to be above sklearn imports
@@ -13,7 +14,6 @@ from bonnerlib2 import dfContour
 from sklearn.utils import shuffle
 from sklearn.neural_network import MLPClassifier
 
-# import pickle
 # import time
 
 
@@ -237,15 +237,78 @@ def q1():
     # 12 NNs with four units in the hidden layer
     # TODO save print that has about the same accuracy as part (d)
     bestOfTwelveNN(4, '1(e)', X_train, t_train, X_test, t_test, N0_test, N1_test)
-    
-
-
-
 
 # End of Q1 -------------------------------------------------------------------
 
 
 
+
+##########  QUESTION 3  ############
+
+def q3():
+    
+    # Question 3(a)
+
+    # open train and test data
+    with open('mnist.pickle','rb') as f:
+        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
+
+    # Use the first 10,000 points of the MNIST training data as validation data,
+    X_val, Y_val = Xtrain[:10000], Ytrain[:10000]
+    # and use the next 10,000 points as the reduced training data
+    X_train, Y_train = Xtrain[10000:20000], Ytrain[10000:20000]
+
+    # play around and find a good learning rate
+    clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=100,
+                            learning_rate_init=1.0,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=100,
+                            verbose=True)
+    clf.fit(X_train, Y_train)
+    print 'clf.score(Xtest, Ytest)'
+    print clf.score(Xtest, Ytest)
+
+    print '\nQuestion 3(a).'; print('-------------')
+
+    max_val_acc = 0
+
+    # train the neural net 10 times
+    for i in range(10):
+        clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=100,
+                            learning_rate_init=1.0,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=100,
+                            verbose=False)
+        clf.fit(X_train, Y_train)
+
+        # Compute and print out the
+        # validation accuracy of each trained net
+        val_acc = clf.score(X_val, Y_val)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
+        max_val_acc = max(max_val_acc, val_acc)
+
+    # Choose the trained net that has the maximum validation accuracy
+    # Print out its validation accuracy, test accuracy and cross entropy
+    # TODO
+    print '\nmaximum validation accuracy: {}'.format(max_val_acc)
+
+    # print out the learning rate used
+    # TODO
+
+
+    # Question 3(b)
+
+# End of Q3 -------------------------------------------------------------------
+
+
 # ------------------- Script for running the source file ---------------------\
-q1()
+# q1()
+# q2() Q2 is non-programming
+q3()
 # ------------------- End of script for running the source file --------------/
