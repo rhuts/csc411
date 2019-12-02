@@ -258,7 +258,7 @@ def q3():
     # and use the next 10,000 points as the reduced training data
     X_train, Y_train = Xtrain[10000:20000], Ytrain[10000:20000]
 
-    learning_rate = 1.0
+    learning_rate = 0.01
 
     # /================= START EXPERIMENT =========================\
     # TODO remove experiment
@@ -310,49 +310,98 @@ def q3():
     # # Choose the trained net that has the maximum validation accuracy
     # # Print out its validation accuracy, test accuracy and cross entropy
     # # TODO calculate cross-entropy manually
-    # print '\nmaximum validation accuracy: {}'.format(max_val_acc)
-    # print 'maximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+    # print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
+    # print '\tmaximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
 
 
     # # print out the learning rate used
-    # print 'learning rate used: {}'.format(learning_rate)
+    # print '\tlearning rate used: {}'.format(learning_rate)
 
 
-    # Question 3(b)
+    # # Question 3(b)
     
-    print '\nQuestion 3(b).'; print('-------------')
+    # print '\nQuestion 3(b).'; print('-------------')
 
-    max_val_acc = 0
-    best_clf = None
+    # max_val_acc = 0
+    # best_clf = None
 
-    # train the neural net 10 times
-    for i in range(10):
-        clf = MLPClassifier(solver='sgd',
+    # # train the neural net 10 times
+    # for i in range(10):
+    #     clf = MLPClassifier(solver='sgd',
+    #                         hidden_layer_sizes=(30, ),
+    #                         activation='logistic',
+    #                         batch_size=10000,
+    #                         learning_rate_init=learning_rate,
+    #                         tol=np.power(10, -8, dtype=float),
+    #                         max_iter=100,
+    #                         verbose=False)
+    #     clf.fit(X_train, Y_train)
+
+    #     # Compute and print out the
+    #     # validation accuracy of each trained net
+    #     val_acc = clf.score(X_val, Y_val)
+    #     print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
+    #     if val_acc > max_val_acc:
+    #         max_val_acc = val_acc
+    #         best_clf = clf
+
+    # # Choose the trained net that has the maximum validation accuracy
+    # # Print out its validation accuracy, test accuracy and cross entropy
+    # # TODO cross entropy
+    # print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
+    # print '\tmaximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+
+    # # TODO 
+    # # explain why accuracy is much lower than in part (a) and is below 70%
+
+    # # print out the learning rate used
+    # print '\tlearning rate used: {}'.format(learning_rate)
+
+
+
+    # Question 3(c)
+
+    #  train NN for 500 iterations
+    clf = MLPClassifier(solver='sgd',
                             hidden_layer_sizes=(30, ),
                             activation='logistic',
                             batch_size=10000,
                             learning_rate_init=learning_rate,
                             tol=np.power(10, -8, dtype=float),
-                            max_iter=100,
+                            max_iter=500,
                             verbose=False)
-        clf.fit(X_train, Y_train)
+    clf.fit(X_train, Y_train)
+    
+    print '\nQuestion 3(c).'; print('-------------')
 
-        # Compute and print out the
-        # validation accuracy of each trained net
-        val_acc = clf.score(X_val, Y_val)
-        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
-        if val_acc > max_val_acc:
-            max_val_acc = val_acc
-            best_clf = clf
+    # Print the final training and test accuracies and cross entropy
+    # TODO cross entropy
+    print '\ttraining accuracy (after 500 iterations): {}'.format(clf.score(X_train, Y_train))
+    print '\ttest accuracy (after 500 iterations): {}'.format(clf.score(Xtest, Ytest))
 
-    # Choose the trained net that has the maximum validation accuracy
-    # Print out its validation accuracy, test accuracy and cross entropy
-    # TODO
-    print '\nmaximum validation accuracy: {}'.format(max_val_acc)
-    print 'maximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
 
-    # print out the learning rate used
-    print 'learning rate used: {}'.format(learning_rate)
+    #  train NN for 1000 iterations
+    clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=10000,
+                            learning_rate_init=learning_rate,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=1000,
+                            verbose=False)
+    clf.fit(X_train, Y_train)
+
+    # Print the final training and test accuracies and cross entropy
+    # TODO cross entropy
+    print '\ttraining accuracy (after 1000 iterations): {}'.format(clf.score(X_train, Y_train))
+    print '\ttest accuracy (after 1000 iterations): {}'.format(clf.score(Xtest, Ytest))
+
+
+    # Question 3(d)
+
+    # Batch Gradient Descent: implementation
+
+
 
 # End of Q3 -------------------------------------------------------------------
 
