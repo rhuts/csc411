@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from bonnerlib2 import dfContour
 import pickle
 
-# disable warnings in sklearn
-# needs to be above sklearn imports
+# # disable warnings in sklearn
+# # needs to be above sklearn imports
 # def warn(*args, **kwargs):
 #     pass
 # import warnings
@@ -226,7 +226,6 @@ def q1():
     # Question 1(d)
 
     # 12 NNs with three units in the hidden layer
-    # TODO save print that has better accuracy than part (c)
     bestOfTwelveNN(3, '1(d)', X_train, t_train, X_test, t_test, N0_test, N1_test)
 
 
@@ -235,7 +234,6 @@ def q1():
     # Question 1(e)
 
     # 12 NNs with four units in the hidden layer
-    # TODO save print that has about the same accuracy as part (d)
     bestOfTwelveNN(4, '1(e)', X_train, t_train, X_test, t_test, N0_test, N1_test)
 
 # End of Q1 -------------------------------------------------------------------
@@ -258,10 +256,11 @@ def q3():
     # and use the next 10,000 points as the reduced training data
     X_train, Y_train = Xtrain[10000:20000], Ytrain[10000:20000]
 
-    learning_rate = 0.01
+    learning_rate = 1.0
 
     # /================= START EXPERIMENT =========================\
     # TODO remove experiment
+    # "Do not hand in any of these experiments"
 
 
     # # play around and find a good learning rate
@@ -271,7 +270,7 @@ def q3():
     #                         batch_size=100,
     #                         learning_rate_init=learning_rate,
     #                         tol=np.power(10, -8, dtype=float),
-    #                         max_iter=100,
+    #                         max_iter=10,
     #                         verbose=True)
     # clf.fit(X_train, Y_train)
     # print 'clf.score(Xtest, Ytest)'
@@ -282,119 +281,148 @@ def q3():
 
 
 
-    # print '\nQuestion 3(a).'; print('-------------')
+    print '\nQuestion 3(a).'; print('-------------')
 
-    # max_val_acc = 0
-    # best_clf = None
+    max_val_acc = 0
+    best_clf = None
 
-    # # train the neural net 10 times
-    # for i in range(10):
-    #     clf = MLPClassifier(solver='sgd',
-    #                         hidden_layer_sizes=(30, ),
-    #                         activation='logistic',
-    #                         batch_size=100,
-    #                         learning_rate_init=learning_rate,
-    #                         tol=np.power(10, -8, dtype=float),
-    #                         max_iter=100,
-    #                         verbose=False)
-    #     clf.fit(X_train, Y_train)
+    # train the neural net 10 times
+    for i in range(10): # TODO revert to 10 iterations
+        clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=100,
+                            learning_rate_init=learning_rate,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=10,
+                            verbose=False)
+        clf.fit(X_train, Y_train)
 
-    #     # Compute and print out the
-    #     # validation accuracy of each trained net
-    #     val_acc = clf.score(X_val, Y_val)
-    #     print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
-    #     if val_acc > max_val_acc:
-    #         max_val_acc = val_acc
-    #         best_clf = clf
+        # Compute and print out the
+        # validation accuracy of each trained net
+        # Choose the trained net that has the maximum validation accuracy
+        val_acc = clf.score(X_val, Y_val)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
+        if val_acc > max_val_acc:
+            max_val_acc = val_acc
+            best_clf = clf
 
-    # # Choose the trained net that has the maximum validation accuracy
-    # # Print out its validation accuracy, test accuracy and cross entropy
-    # # TODO calculate cross-entropy manually
-    # print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
-    # print '\tmaximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_train_onehot = np.eye(n_classes)[Y_train]
+
+    # get prediction probabilities
+    pred_prob = best_clf.predict_proba(X_train)
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+
+    # Print out its validation accuracy, test accuracy and cross entropy
+    print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
+    print '\ttest accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+    print '\tcross entropy: {}'.format(cross_entropy)
+
+    # Print out the learning rate used
+    print '\tlearning rate used: {}'.format(learning_rate)
 
 
-    # # print out the learning rate used
-    # print '\tlearning rate used: {}'.format(learning_rate)
 
-
-    # # Question 3(b)
+    # Question 3(b)
     
-    # print '\nQuestion 3(b).'; print('-------------')
+    print '\nQuestion 3(b).'; print('-------------')
 
-    # max_val_acc = 0
-    # best_clf = None
+    max_val_acc = 0
+    best_clf = None
 
-    # # train the neural net 10 times
-    # for i in range(10):
-    #     clf = MLPClassifier(solver='sgd',
-    #                         hidden_layer_sizes=(30, ),
-    #                         activation='logistic',
-    #                         batch_size=10000,
-    #                         learning_rate_init=learning_rate,
-    #                         tol=np.power(10, -8, dtype=float),
-    #                         max_iter=100,
-    #                         verbose=False)
-    #     clf.fit(X_train, Y_train)
+    # train the neural net 10 times
+    for i in range(10):
+        clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=10000,
+                            learning_rate_init=learning_rate,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=10,
+                            verbose=False)
+        clf.fit(X_train, Y_train)
 
-    #     # Compute and print out the
-    #     # validation accuracy of each trained net
-    #     val_acc = clf.score(X_val, Y_val)
-    #     print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
-    #     if val_acc > max_val_acc:
-    #         max_val_acc = val_acc
-    #         best_clf = clf
+        # Compute and print out the
+        # validation accuracy of each trained net
+        # Choose the trained net that has the maximum validation accuracy
+        val_acc = clf.score(X_val, Y_val)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
+        if val_acc > max_val_acc:
+            max_val_acc = val_acc
+            best_clf = clf
 
-    # # Choose the trained net that has the maximum validation accuracy
-    # # Print out its validation accuracy, test accuracy and cross entropy
-    # # TODO cross entropy
-    # print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
-    # print '\tmaximum test accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+    # get prediction probabilities
+    pred_prob = best_clf.predict_proba(X_train)
 
-    # # TODO 
-    # # explain why accuracy is much lower than in part (a) and is below 70%
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
-    # # print out the learning rate used
-    # print '\tlearning rate used: {}'.format(learning_rate)
+    # Print out its validation accuracy, test accuracy and cross entropy
+    print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
+    print '\ttest accuracy: {}'.format(best_clf.score(Xtest, Ytest))
+    print '\tcross entropy: {}'.format(cross_entropy)
+
+    # TODO 
+    # explain why accuracy is much lower than in part (a) and is 75%-80%
+
+    # Print out the learning rate used
+    print '\tlearning rate used: {}'.format(learning_rate)
 
 
 
     # Question 3(c)
 
-    #  train NN for 500 iterations
+    # train NN for 50 iterations
     clf = MLPClassifier(solver='sgd',
                             hidden_layer_sizes=(30, ),
                             activation='logistic',
                             batch_size=10000,
                             learning_rate_init=learning_rate,
                             tol=np.power(10, -8, dtype=float),
-                            max_iter=500,
+                            max_iter=50,
                             verbose=False)
     clf.fit(X_train, Y_train)
     
     print '\nQuestion 3(c).'; print('-------------')
 
+
+    # get prediction probabilities
+    pred_prob = clf.predict_proba(X_train)
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+
     # Print the final training and test accuracies and cross entropy
-    # TODO cross entropy
-    print '\ttraining accuracy (after 500 iterations): {}'.format(clf.score(X_train, Y_train))
-    print '\ttest accuracy (after 500 iterations): {}'.format(clf.score(Xtest, Ytest))
+    print '\ttraining accuracy (after 50 iterations): {}'.format(clf.score(X_train, Y_train))
+    print '\ttest accuracy (after 50 iterations): {}'.format(clf.score(Xtest, Ytest))
+    print '\tcross entropy (after 50 iterations): {}'.format(cross_entropy)
 
 
-    #  train NN for 1000 iterations
+    # train NN for 200 iterations
     clf = MLPClassifier(solver='sgd',
                             hidden_layer_sizes=(30, ),
                             activation='logistic',
                             batch_size=10000,
                             learning_rate_init=learning_rate,
                             tol=np.power(10, -8, dtype=float),
-                            max_iter=1000,
+                            max_iter=200,
                             verbose=False)
     clf.fit(X_train, Y_train)
 
+    # get prediction probabilities
+    pred_prob = clf.predict_proba(X_train)
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+
     # Print the final training and test accuracies and cross entropy
-    # TODO cross entropy
-    print '\ttraining accuracy (after 1000 iterations): {}'.format(clf.score(X_train, Y_train))
-    print '\ttest accuracy (after 1000 iterations): {}'.format(clf.score(Xtest, Ytest))
+    print '\n\ttraining accuracy (after 200 iterations): {}'.format(clf.score(X_train, Y_train))
+    print '\ttest accuracy (after 200 iterations): {}'.format(clf.score(Xtest, Ytest))
+    print '\tcross entropy (after 200 iterations): {}'.format(cross_entropy)
 
 
     # Question 3(d)
