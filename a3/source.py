@@ -429,6 +429,37 @@ def q3():
 
     # Batch Gradient Descent: implementation
 
+    learning_rate = 0.01
+
+    # NOTES
+    # - one hidden layer
+    # - batch gradient descent
+    # - one loop
+    # - comment forward pass of training
+    # - comment backward propagation
+    # - Initialize the weight matrices 
+    #   randomly using a standard Gaussian distribution (i.e., mean 0 and variance 1),
+    # - initialize the bias terms to 0
+    # - use the average gradient for weight updates
+    # - 30 hidden units
+    # - 100 iterations of gradient descent
+    # - experiment to find a good learning rate
+    # -  test accuracy of around 85% after 100 iterations
+
+    # train a neural net 10 times
+        # Compute and print out the validation accuracy of each trained net
+
+        # Choose the trained net that has the maximum validation accuracy
+
+    # Print out its validation accuracy, test accuracy and cross entropy. 
+    # Finally, print out the learning rate that you used
+
+    # Using the average
+    # gradient means that the optimal learning rate does not change much when the
+    # size of the training set changes (which is why the same learing rate worked in
+    # parts (a) and (b)). Explain why this is
+    # TODO explain
+
 
 
 # End of Q3 -------------------------------------------------------------------
