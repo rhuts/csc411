@@ -414,7 +414,7 @@ def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
         # H.T * (O - T)
         dCdW = np.dot(H.T, dCdZ)                        # 30 x 10
         # 1 * dC/dZ                     
-        dCdw0 = np.dot(np.ones(dCdZ.shape[0]), dCdZ)    # 10 x 1
+        dCdw0 = np.sum(dCdZ)                            # 10 x 1
         # dC/dZ * W.T
         dCdH = np.dot(dCdZ, W.T)                        # 10000 x 30
         # H * (1 - H) * dC/dH                           # H.shape   # 10000 x 30
@@ -612,14 +612,14 @@ def q3():
     learning_rate = 1.0
 
     print '\nQuestion 3(a).'; print('-------------')
-    # bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=100, l_rate=learning_rate, max_iter_=10)
+    bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=100, l_rate=learning_rate, max_iter_=10)
 
 
 
     # Question 3(b)
     
     print '\nQuestion 3(b).'; print('-------------')
-    # bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=10)
+    bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=10)
 
 
 
@@ -627,8 +627,8 @@ def q3():
     # Question 3(c)
 
     print '\nQuestion 3(c).'; print('-------------')
-    # trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=50)
-    # trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=200)
+    trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=50)
+    trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=200)
     
 
 
@@ -701,7 +701,7 @@ def q3():
 
 
 # ------------------- Script for running the source file ---------------------\
-# q1()
+q1()
 # q2() Q2 is non-programming
 q3()
 # ------------------- End of script for running the source file --------------/
