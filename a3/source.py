@@ -381,8 +381,11 @@ def get_score(X, T, params):
 
 '''
 My implementation of Batch Gradient Descent.
+TODO doc, optional params
+Supplying a mini-batch of training data, max_iter_ value of 1, and initial_params
+can be used for performing one iteration of mini-batch stochastic gradient descent
 '''
-def myBGD(X_train, Y_train, max_iter_, l_rate):
+def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
 
     # NOTES
     # - one hidden layer
@@ -394,18 +397,23 @@ def myBGD(X_train, Y_train, max_iter_, l_rate):
     #   randomly using a standard Gaussian distribution (i.e., mean 0 and variance 1),
     # - initialize the bias terms to 0
     # - use the average gradient for weight updates
-    # - 30 hidden units
+    # - 30 hidden units (variable for 3(f) )
     # - 100 iterations of gradient descent
     # - experiment to find a good learning rate
     # - test accuracy of around 85% after 100 iterations
 
-    # init weight matrices randomly using standard Gaussian
-    V = np.random.normal(0, 1, 784 * 30).reshape((784, 30)) # V is 784 x 30
-    W = np.random.normal(0, 1, 30 * 10).reshape((30, 10))   # W is 30 x 10
+    # optionally allow initial params for use in Question 3(e)+
+    if init_params:
+        V, W, b1, b2 = init_params[0], init_params[1], init_params[2], init_params[3]
 
-    # init bias terms to 0
-    b1 = np.zeros(30)   # b1 is 30 x 1
-    b2 = np.zeros(10)   # b2 is 10 x 1
+    else:
+        # init weight matrices randomly using standard Gaussian
+        V = np.random.normal(0, 1, 784 * n_hidden).reshape((784, n_hidden)) # V is 784 x 30
+        W = np.random.normal(0, 1, n_hidden * 10).reshape((n_hidden, 10))   # W is 30 x 10
+
+        # init bias terms to 0
+        b1 = np.zeros(n_hidden)   # b1 is 30 x 1
+        b2 = np.zeros(10)   # b2 is 10 x 1
 
     # convert Y_train to one-hot encoding
     n_classes = 10
@@ -448,6 +456,149 @@ def myBGD(X_train, Y_train, max_iter_, l_rate):
         # return the learned params
         if (i == (max_iter_ - 1)):
             return [V, W, b1, b2]
+
+'''
+TODO doc
+'''
+def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
+
+    learning_rate = 1.0
+
+    best_acc_val = 0
+    best_params = []
+
+    # train a neural net 10 times
+    for i in range(2): # TODO change to 10
+        # Compute and print out the validation accuracy of each trained net
+        params = myBGD(X_train, Y_train, max_iter_=100, l_rate=learning_rate, init_params=[])
+        acc_val = get_score(X_val, Y_val, params)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, acc_val)
+
+        # Choose the trained net that has the maximum validation accuracy
+        if (acc_val > best_acc_val):
+            best_acc_val = acc_val
+            best_params = params
+
+
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_test_onehot = np.eye(n_classes)[Ytest]
+
+    # get prediction probabilities
+    # pred_prob, H = best_clf.predict_proba(X_train)
+    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+
+    # Print out its validation accuracy, test accuracy and cross entropy
+    print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
+    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, best_params))
+    print '\tcross entropy: {}'.format(cross_entropy)
+
+    # Print out the learning rate used
+    print '\tlearning rate used: {}'.format(learning_rate)
+
+
+
+
+'''
+TODO doc
+'''
+def mySGD(X_train, Y_train, Xtest, Ytest, l_rate, batch_size, n_epochs, verbose=False, n_hidden=30):
+
+
+    # sweep across the entire shuffled data
+    N = X_train.shape[0]
+
+    # print 'N'
+    # print N
+
+    # get the number of mini-batches
+    n_batches = N // batch_size
+    if (N % batch_size) != 0:
+        n_batches += 1
+
+    params = []
+
+    # for each sweep of the entire data (epoch)
+    for i in range(n_epochs):
+
+        ################ A NEW epoch is beginning ################
+
+        # shuffle the training data randomly
+        X_train, Y_train = shuffle(X_train, Y_train)
+
+        # get indexes of each mini-batch
+        for j in range(n_batches):
+
+            start = j * batch_size
+            end = min(start + batch_size, N)    # clamp to training data size
+
+            ################ Mini-batch is created ################
+            # using X_train[start:end]
+
+            # switch to 100 hidden units for Question 3(f)
+            if verbose and n_hidden != 30:
+                updated_params = myBGD(X_train[start:end], Y_train[start:end], max_iter_=1, l_rate=l_rate, init_params=params, n_hidden=n_hidden)
+
+            else:
+                updated_params = myBGD(X_train[start:end], Y_train[start:end], max_iter_=1, l_rate=l_rate, init_params=params)
+
+            params = updated_params
+        
+        # for Question 3(f)
+        # print out the test accuracy after every ten epochs and the first
+        if verbose and (((i + 1) % 10 == 0) or (i == 0)):
+            acc_test = get_score(Xtest, Ytest, params)
+            print '\ttest accuracy after epoch #{} is \t: {}'.format(i + 1, acc_test)
+
+    return params
+
+
+'''
+TODO doc
+'''
+def bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size, n_epochs):
+
+    learning_rate = 1.0
+
+    best_acc_val = 0
+    best_params = []
+
+    # train a neural net 10 times
+    for i in range(2): # TODO change to 10
+        # Compute and print out the validation accuracy of each trained net
+        params = mySGD(X_train, Y_train, Xtest, Ytest, l_rate=learning_rate, batch_size=batch_size, n_epochs=n_epochs)
+
+        acc_val = get_score(X_val, Y_val, params)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, acc_val)
+
+        # Choose the trained net that has the maximum validation accuracy
+        if (acc_val > best_acc_val):
+            best_acc_val = acc_val
+            best_params = params
+
+
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_test_onehot = np.eye(n_classes)[Ytest]
+
+    # get prediction probabilities
+    # pred_prob, H = best_clf.predict_proba(X_train)
+    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+
+    # Print out its validation accuracy, test accuracy and cross entropy
+    print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
+    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, best_params))
+    print '\tcross entropy: {}'.format(cross_entropy)
+
+    # Print out the learning rate used
+    print '\tlearning rate used: {}'.format(learning_rate)
+
 
 ##########  QUESTION 3  ############
 
@@ -495,43 +646,7 @@ def q3():
     # Batch Gradient Descent: implementation
 
     print '\nQuestion 3(d).'; print('-------------')
-
-    learning_rate = 1.0
-
-    best_acc_val = 0
-    best_params = []
-
-    # train a neural net 10 times
-    for i in range(2): # TODO change to 10
-        # Compute and print out the validation accuracy of each trained net
-        params = myBGD(X_train, Y_train, max_iter_=100, l_rate=learning_rate)
-        acc_val = get_score(X_val, Y_val, params)
-        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, acc_val)
-
-        # Choose the trained net that has the maximum validation accuracy
-        if (acc_val > best_acc_val):
-            best_acc_val = acc_val
-            best_params = params
-
-
-    # convert Y_train to one-hot encoding
-    n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
-
-    # get prediction probabilities
-    # pred_prob, H = best_clf.predict_proba(X_train)
-    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
-
-    # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
-
-    # Print out its validation accuracy, test accuracy and cross entropy
-    print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
-    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, best_params))
-    print '\tcross entropy: {}'.format(cross_entropy)
-
-    # Print out the learning rate used
-    print '\tlearning rate used: {}'.format(learning_rate)
+    # bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest)
 
 
 
@@ -540,6 +655,34 @@ def q3():
     # size of the training set changes (which is why the same learing rate worked in
     # parts (a) and (b)). Explain why this is
     # TODO explain
+
+    # Question 3(e)
+
+    # Stochastic Gradient Descent: implementation
+
+    print '\nQuestion 3(e).'; print('-------------')
+    bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size=100, n_epochs=100)
+
+    # Question 3(f)
+
+    print '\nQuestion 3(f).'; print('-------------')
+    params = mySGD(Xtrain, Ytrain, Xtest, Ytest, l_rate=learning_rate, batch_size=100, n_epochs=100, verbose=True, n_hidden=100)
+
+    # convert Ytest to one-hot encoding
+    n_classes = 10
+    Y_test_onehot = np.eye(n_classes)[Ytest]
+
+    # get prediction probabilities
+    # pred_prob, H = best_clf.predict_proba(X_train)
+    pred_prob, H = predict_probs(Xtest, params[0], params[1], params[2], params[3])
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+
+    # Print out the final training accuracy, test accuracy and cross entropy
+    print '\ttrain accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
+    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, params))
+    print '\tcross entropy: {}'.format(cross_entropy)
 
 
 
