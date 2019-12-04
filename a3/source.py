@@ -289,7 +289,8 @@ def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rat
 
 '''
 Trains a MLPClassifier once with what is effectively
-batch gradient descent and then prints its metrics.
+batch gradient descent when batch_size == training data size
+and then prints its metrics.
 
 This function is separate from bestOfTenNN() because
 for loops are not permitted in Question 3(c)
@@ -375,7 +376,8 @@ NOTE:
 This implementation can behave like mini-batch gradient descent
 if supplying a subset of training data, max_iter_ value of 1,
 and initial_params. This will perform one iteration of mini-batch
-stochastic gradient descent and return the learned parameters.
+stochastic gradient descent and return the learned parameters
+to be used in subsequent calls to this function.
 
 The number of hidden units can optionally be set for Question 3(f)+
 
@@ -452,6 +454,7 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
 
     # train a neural net 10 times
     for i in range(10):
+
         # Compute and print out the validation accuracy of each trained net
         params = myBGD(X_train, Y_train, max_iter_=100, l_rate=learning_rate, init_params=[])
         acc_val = get_score(X_val, Y_val, params)
@@ -468,7 +471,6 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
     Y_test_onehot = np.eye(n_classes)[Ytest]
 
     # get prediction probabilities
-    # pred_prob, H = best_clf.predict_proba(X_train)
     pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
 
     # calculate cross-entropy
