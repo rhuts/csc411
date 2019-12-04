@@ -14,8 +14,6 @@ import pickle
 from sklearn.utils import shuffle
 from sklearn.neural_network import MLPClassifier
 
-# import time
-
 
 
 ##########  QUESTION 1  ############
@@ -74,20 +72,6 @@ def predict(clf, X, threshold=0.5):
 Calculates accuracy, precision and recall.
 '''
 def getMetrics(clf, X_test, t_test, N0_test, N1_test):
-
-    # TODO remove commentted test prints before submit
-    # print '\nclf.n_layers_'
-    # print clf.n_layers_
-
-    # # weight matrix at each layer i
-    # print '\nclf.coefs_'
-    # print [coef.shape for coef in clf.coefs_]
-    # print clf.coefs_
-
-    # # bias vector at each layer i
-    # print '\nclf.intercepts_'
-    # print len(clf.intercepts_)
-    # print clf.intercepts_
 
     y = predict(clf, X_test, threshold=0.5)
 
@@ -165,7 +149,6 @@ def bestOfTwelveNN(n_units, str_question, X_train, t_train, X_test, t_test, N0_t
     # print best model metrics
     accuracy, precision, recall = getMetrics(best_clf, X_test, t_test, N0_test, N1_test)
     print '\nQuestion {}.'.format(str_question); print('-------------')
-    print '\t\tofficial score: {}'.format(best_clf.score(X_test, t_test)) # TODO remove this print
     print '\taccuracy: {}'.format(accuracy); print '\tprecision: {}'.format(precision); print '\trecall: {}'.format(recall)
 
 def q1():
@@ -200,7 +183,6 @@ def q1():
 
     # print the accuracy, precision and recall of the neural net on the test data
     print '\nQuestion 1(b).'; print('-------------')
-    print '\t\tofficial score: {}'.format(clf.score(X_test, t_test)) # TODO remove this print
     print '\taccuracy: {}'.format(accuracy); print '\tprecision: {}'.format(precision); print '\trecall: {}'.format(recall)
 
     # plot training data
@@ -258,7 +240,8 @@ def experiment_l_rate(X_train, Y_train, X_test, Y_test, l_rate):
 
 
 '''
-TODO doc
+Trains MLPClassifier 10 times and prints the metrics
+for the classifier with the best validation accuracy.
 '''
 def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, max_iter_):
     
@@ -286,15 +269,15 @@ def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rat
             max_val_acc = val_acc
             best_clf = clf
 
-    # convert Y_train to one-hot encoding
+    # convert Ytest to one-hot encoding
     n_classes = 10
-    Y_train_onehot = np.eye(n_classes)[Y_train]
+    Y_test_onehot = np.eye(n_classes)[Ytest]
 
     # get prediction probabilities
-    pred_prob = best_clf.predict_proba(X_train)
+    pred_prob = best_clf.predict_proba(Xtest)
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob)) # TODO change all cross-entropies to test data
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
 
     # Print out its validation accuracy, test accuracy and cross entropy
     print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
@@ -305,10 +288,11 @@ def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rat
     print '\tlearning rate used: {}'.format(l_rate)
 
 '''
+Trains a MLPClassifier once with what is effectively
+batch gradient descent and then prints its metrics.
+
 This function is separate from bestOfTenNN() because
 for loops are not permitted in Question 3(c)
-
-TODO doc
 '''
 def trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, max_iter_):
     
@@ -324,15 +308,15 @@ def trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, m
     clf.fit(X_train, Y_train)
     
 
-    # convert Y_train to one-hot encoding
+    # convert Ytest to one-hot encoding
     n_classes = 10
-    Y_train_onehot = np.eye(n_classes)[Y_train]
+    Y_test_onehot = np.eye(n_classes)[Ytest]
 
     # get prediction probabilities
-    pred_prob = clf.predict_proba(X_train)
+    pred_prob = clf.predict_proba(Xtest)
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
 
     # Print the final training and test accuracies and cross entropy
     print '\ttraining accuracy (after 50 iterations): {}'.format(clf.score(X_train, Y_train))
@@ -340,31 +324,36 @@ def trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, m
     print '\tcross entropy (after 50 iterations): {}'.format(cross_entropy)
 
 '''
-TODO doc
+The softmax function.
+
+Returns the softmax of input y.
 '''
 def softmax(y):
     exp_scores = np.exp(y)
     return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
 
 '''
-TODO doc
+Computes the class probabilities for a given input X
+and parameters V, W, b1, b2.
+
+Returns both the probabilities from the output layer
+and the values of the hidden layer.
 '''
 def predict_probs(X, V, W, b1, b2):
 
     # get probabilities
-    # y = sigmoid(np.matmul(sigmoid(np.dot(X, V) + b1), W) + b2)
     H = sigmoid(np.dot(X, V) + b1)
     O = softmax(np.matmul(H, W) + b2)
 
     # return probabilities
-    # return y
-    # exp_scores = np.exp(y)
-    # return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
     return O, H
 
 
 '''
-TODO doc
+Manual implementation of accuracy calculation
+given input values X, truth values T, and learned parameters params.
+
+Returns the accuracy.
 '''
 def get_score(X, T, params):
     
@@ -381,26 +370,18 @@ def get_score(X, T, params):
 
 '''
 My implementation of Batch Gradient Descent.
-TODO doc, optional params
-Supplying a mini-batch of training data, max_iter_ value of 1, and initial_params
-can be used for performing one iteration of mini-batch stochastic gradient descent
+
+NOTE:
+This implementation can behave like mini-batch gradient descent
+if supplying a subset of training data, max_iter_ value of 1,
+and initial_params. This will perform one iteration of mini-batch
+stochastic gradient descent and return the learned parameters.
+
+The number of hidden units can optionally be set for Question 3(f)+
+
+Returns the learned parameters.
 '''
 def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
-
-    # NOTES
-    # - one hidden layer
-    # - batch gradient descent
-    # - one loop
-    # - comment forward pass of training
-    # - comment backward propagation
-    # - Initialize the weight matrices 
-    #   randomly using a standard Gaussian distribution (i.e., mean 0 and variance 1),
-    # - initialize the bias terms to 0
-    # - use the average gradient for weight updates
-    # - 30 hidden units (variable for 3(f) )
-    # - 100 iterations of gradient descent
-    # - experiment to find a good learning rate
-    # - test accuracy of around 85% after 100 iterations
 
     # optionally allow initial params for use in Question 3(e)+
     if init_params:
@@ -422,7 +403,7 @@ def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
     # perform max_iter_ iterations of gradient descent
     for i in range(max_iter_):
 
-        ################ Forward Propagation ################
+        ################ Forward Pass ################
         O, H = predict_probs(X_train, V, W, b1, b2)
 
         ################ Back Propagation ################
@@ -458,7 +439,9 @@ def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
             return [V, W, b1, b2]
 
 '''
-TODO doc
+Trains a NN with Batch Gradient Descent 10 times
+and prints the metrics for the classifier with
+the best validation accuracy.
 '''
 def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
 
@@ -468,7 +451,7 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
     best_params = []
 
     # train a neural net 10 times
-    for i in range(2): # TODO change to 10
+    for i in range(10):
         # Compute and print out the validation accuracy of each trained net
         params = myBGD(X_train, Y_train, max_iter_=100, l_rate=learning_rate, init_params=[])
         acc_val = get_score(X_val, Y_val, params)
@@ -480,7 +463,7 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
             best_params = params
 
 
-    # convert Y_train to one-hot encoding
+    # convert Y_test to one-hot encoding
     n_classes = 10
     Y_test_onehot = np.eye(n_classes)[Ytest]
 
@@ -503,16 +486,21 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
 
 
 '''
-TODO doc
+My implementation of Stochastic Gradient Descent.
+Trains a NN for a given batch_size, number of epochs,
+and with a number of hidden units.
+
+NOTE:
+Setting verbose to True and setting the number of hidden units
+to a value other than 30 triggers the behaviour desired for
+Question 3(f)
+
+Returns the learned parameters.
 '''
 def mySGD(X_train, Y_train, Xtest, Ytest, l_rate, batch_size, n_epochs, verbose=False, n_hidden=30):
 
-
     # sweep across the entire shuffled data
     N = X_train.shape[0]
-
-    # print 'N'
-    # print N
 
     # get the number of mini-batches
     n_batches = N // batch_size
@@ -551,13 +539,14 @@ def mySGD(X_train, Y_train, Xtest, Ytest, l_rate, batch_size, n_epochs, verbose=
         # print out the test accuracy after every ten epochs and the first
         if verbose and (((i + 1) % 10 == 0) or (i == 0)):
             acc_test = get_score(Xtest, Ytest, params)
-            print '\ttest accuracy after epoch #{} is \t: {}'.format(i + 1, acc_test)
+            print '\ttest accuracy after epoch #{} is : {}'.format(i + 1, acc_test)
 
     return params
 
 
 '''
-TODO doc
+Trains a NN 10 times with Stochastic Gradient Descent
+and prints the metrics of the one with the best validation accuracy.
 '''
 def bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size, n_epochs):
 
@@ -567,7 +556,7 @@ def bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size, n_e
     best_params = []
 
     # train a neural net 10 times
-    for i in range(2): # TODO change to 10
+    for i in range(10):
         # Compute and print out the validation accuracy of each trained net
         params = mySGD(X_train, Y_train, Xtest, Ytest, l_rate=learning_rate, batch_size=batch_size, n_epochs=n_epochs)
 
@@ -580,7 +569,7 @@ def bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size, n_e
             best_params = params
 
 
-    # convert Y_train to one-hot encoding
+    # convert Y_test to one-hot encoding
     n_classes = 10
     Y_test_onehot = np.eye(n_classes)[Ytest]
 
@@ -629,8 +618,7 @@ def q3():
     
     print '\nQuestion 3(b).'; print('-------------')
     # bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=10)
-    # TODO 
-    # explain why accuracy is much lower than in part (a) and is 75%-80%
+
 
 
 
@@ -641,20 +629,17 @@ def q3():
     # trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=200)
     
 
+
+
     # Question 3(d)
 
     # Batch Gradient Descent: implementation
 
     print '\nQuestion 3(d).'; print('-------------')
-    # bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest)
+    bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest)
 
 
 
-    # Using the average gradient means that
-    # the optimal learning rate does not change much when the
-    # size of the training set changes (which is why the same learing rate worked in
-    # parts (a) and (b)). Explain why this is
-    # TODO explain
 
     # Question 3(e)
 
@@ -662,6 +647,9 @@ def q3():
 
     print '\nQuestion 3(e).'; print('-------------')
     bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size=100, n_epochs=100)
+
+
+
 
     # Question 3(f)
 
@@ -680,10 +668,31 @@ def q3():
     cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
 
     # Print out the final training accuracy, test accuracy and cross entropy
-    print '\ttrain accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
-    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, params))
-    print '\tcross entropy: {}'.format(cross_entropy)
+    print '\n\tfinal train accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
+    print '\tfinal test accuracy: {}'.format(get_score(Xtest, Ytest, params))
+    print '\tfinal cross entropy: {}'.format(cross_entropy)
 
+
+
+    # Question 3(g)
+    print '\nQuestion 3(g).'; print('-------------')
+    params = mySGD(Xtrain, Ytrain, Xtest, Ytest, l_rate=learning_rate, batch_size=Xtrain.shape[0], n_epochs=100, verbose=True, n_hidden=100)
+
+    # convert Ytest to one-hot encoding
+    n_classes = 10
+    Y_test_onehot = np.eye(n_classes)[Ytest]
+
+    # get prediction probabilities
+    # pred_prob, H = best_clf.predict_proba(X_train)
+    pred_prob, H = predict_probs(Xtest, params[0], params[1], params[2], params[3])
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+
+    # Print out the final training accuracy, test accuracy and cross entropy
+    print '\n\tfinal train accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
+    print '\tfinal test accuracy: {}'.format(get_score(Xtest, Ytest, params))
+    print '\tfinal cross entropy: {}'.format(cross_entropy)
 
 
 # End of Q3 -------------------------------------------------------------------
