@@ -238,63 +238,42 @@ def q1():
 
 # End of Q1 -------------------------------------------------------------------
 
-
-
-
-##########  QUESTION 3  ############
-
-def q3():
-    
-    # Question 3(a)
-
-    # open train and test data
-    with open('mnist.pickle','rb') as f:
-        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
-
-    # Use the first 10,000 points of the MNIST training data as validation data,
-    X_val, Y_val = Xtrain[:10000], Ytrain[:10000]
-    # and use the next 10,000 points as the reduced training data
-    X_train, Y_train = Xtrain[10000:20000], Ytrain[10000:20000]
-
-    learning_rate = 1.0
-
-    # /================= START EXPERIMENT =========================\
-    # TODO remove experiment
-    # "Do not hand in any of these experiments"
-
-
-    # # play around and find a good learning rate
-    # clf = MLPClassifier(solver='sgd',
-    #                         hidden_layer_sizes=(30, ),
-    #                         activation='logistic',
-    #                         batch_size=100,
-    #                         learning_rate_init=learning_rate,
-    #                         tol=np.power(10, -8, dtype=float),
-    #                         max_iter=10,
-    #                         verbose=True)
-    # clf.fit(X_train, Y_train)
-    # print 'clf.score(Xtest, Ytest)'
-    # print clf.score(Xtest, Ytest)
-
-    # \================= END EXPERIMENT =========================/
-
-
-
-
-    print '\nQuestion 3(a).'; print('-------------')
-
-    max_val_acc = 0
-    best_clf = None
-
-    # train the neural net 10 times
-    for i in range(10): # TODO revert to 10 iterations
-        clf = MLPClassifier(solver='sgd',
+'''
+Used for playing around with learning rates.
+Tune l_rate to change learning rate.
+'''
+def experiment_l_rate(X_train, Y_train, X_test, Y_test, l_rate):
+    # play around and find a good learning rate
+    clf = MLPClassifier(solver='sgd',
                             hidden_layer_sizes=(30, ),
                             activation='logistic',
                             batch_size=100,
-                            learning_rate_init=learning_rate,
+                            learning_rate_init=l_rate,
                             tol=np.power(10, -8, dtype=float),
                             max_iter=10,
+                            verbose=True)
+    clf.fit(X_train, Y_train)
+    print 'clf.score(Xtest, Ytest)'
+    print clf.score(X_test, Y_test)
+
+
+'''
+TODO doc
+'''
+def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, max_iter_):
+    
+    max_val_acc = 0
+    best_clf = None
+
+    # train the neural net 10 times for max_iter_ iterations
+    for i in range(10):
+        clf = MLPClassifier(solver='sgd',
+                            hidden_layer_sizes=(30, ),
+                            activation='logistic',
+                            batch_size=batch_size_,
+                            learning_rate_init=l_rate,
+                            tol=np.power(10, -8, dtype=float),
+                            max_iter=max_iter_,
                             verbose=False)
         clf.fit(X_train, Y_train)
 
@@ -315,7 +294,7 @@ def q3():
     pred_prob = best_clf.predict_proba(X_train)
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob)) # TODO change all cross-entropies to test data
 
     # Print out its validation accuracy, test accuracy and cross entropy
     print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
@@ -323,72 +302,31 @@ def q3():
     print '\tcross entropy: {}'.format(cross_entropy)
 
     # Print out the learning rate used
-    print '\tlearning rate used: {}'.format(learning_rate)
+    print '\tlearning rate used: {}'.format(l_rate)
 
+'''
+This function is separate from bestOfTenNN() because
+for loops are not permitted in Question 3(c)
 
-
-    # Question 3(b)
+TODO doc
+'''
+def trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, max_iter_):
     
-    print '\nQuestion 3(b).'; print('-------------')
-
-    max_val_acc = 0
-    best_clf = None
-
-    # train the neural net 10 times
-    for i in range(10):
-        clf = MLPClassifier(solver='sgd',
-                            hidden_layer_sizes=(30, ),
-                            activation='logistic',
-                            batch_size=10000,
-                            learning_rate_init=learning_rate,
-                            tol=np.power(10, -8, dtype=float),
-                            max_iter=10,
-                            verbose=False)
-        clf.fit(X_train, Y_train)
-
-        # Compute and print out the
-        # validation accuracy of each trained net
-        # Choose the trained net that has the maximum validation accuracy
-        val_acc = clf.score(X_val, Y_val)
-        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, val_acc)
-        if val_acc > max_val_acc:
-            max_val_acc = val_acc
-            best_clf = clf
-
-    # get prediction probabilities
-    pred_prob = best_clf.predict_proba(X_train)
-
-    # calculate cross-entropy
-    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
-
-    # Print out its validation accuracy, test accuracy and cross entropy
-    print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
-    print '\ttest accuracy: {}'.format(best_clf.score(Xtest, Ytest))
-    print '\tcross entropy: {}'.format(cross_entropy)
-
-    # TODO 
-    # explain why accuracy is much lower than in part (a) and is 75%-80%
-
-    # Print out the learning rate used
-    print '\tlearning rate used: {}'.format(learning_rate)
-
-
-
-    # Question 3(c)
-
-    # train NN for 50 iterations
+    # train NN for max_iter_ iterations
     clf = MLPClassifier(solver='sgd',
                             hidden_layer_sizes=(30, ),
                             activation='logistic',
-                            batch_size=10000,
-                            learning_rate_init=learning_rate,
+                            batch_size=batch_size_,
+                            learning_rate_init=l_rate,
                             tol=np.power(10, -8, dtype=float),
-                            max_iter=50,
+                            max_iter=max_iter_,
                             verbose=False)
     clf.fit(X_train, Y_train)
     
-    print '\nQuestion 3(c).'; print('-------------')
 
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
     pred_prob = clf.predict_proba(X_train)
@@ -401,35 +339,50 @@ def q3():
     print '\ttest accuracy (after 50 iterations): {}'.format(clf.score(Xtest, Ytest))
     print '\tcross entropy (after 50 iterations): {}'.format(cross_entropy)
 
+'''
+TODO doc
+'''
+def softmax(y):
+    exp_scores = np.exp(y)
+    return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
 
-    # train NN for 200 iterations
-    clf = MLPClassifier(solver='sgd',
-                            hidden_layer_sizes=(30, ),
-                            activation='logistic',
-                            batch_size=10000,
-                            learning_rate_init=learning_rate,
-                            tol=np.power(10, -8, dtype=float),
-                            max_iter=200,
-                            verbose=False)
-    clf.fit(X_train, Y_train)
+'''
+TODO doc
+'''
+def predict_probs(X, V, W, b1, b2):
 
+    # get probabilities
+    # y = sigmoid(np.matmul(sigmoid(np.dot(X, V) + b1), W) + b2)
+    H = sigmoid(np.dot(X, V) + b1)
+    O = softmax(np.matmul(H, W) + b2)
+
+    # return probabilities
+    # return y
+    # exp_scores = np.exp(y)
+    # return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    return O, H
+
+
+'''
+TODO doc
+'''
+def get_score(X, T, params):
+    
     # get prediction probabilities
-    pred_prob = clf.predict_proba(X_train)
+    V, W, b1, b2 = params[0], params[1], params[2], params[3], 
+    O, H = predict_probs(X, V, W, b1, b2)
 
-    # calculate cross-entropy
-    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
+    # convert probabilities to labels
+    Y_hat = np.argmax(O, axis=1)
 
-    # Print the final training and test accuracies and cross entropy
-    print '\n\ttraining accuracy (after 200 iterations): {}'.format(clf.score(X_train, Y_train))
-    print '\ttest accuracy (after 200 iterations): {}'.format(clf.score(Xtest, Ytest))
-    print '\tcross entropy (after 200 iterations): {}'.format(cross_entropy)
+    # score is % of correct classifications
+    return np.sum(np.equal(Y_hat, T) == True) / float(T.size)
 
 
-    # Question 3(d)
-
-    # Batch Gradient Descent: implementation
-
-    learning_rate = 0.01
+'''
+My implementation of Batch Gradient Descent.
+'''
+def myBGD(X_train, Y_train, max_iter_, l_rate):
 
     # NOTES
     # - one hidden layer
@@ -444,18 +397,146 @@ def q3():
     # - 30 hidden units
     # - 100 iterations of gradient descent
     # - experiment to find a good learning rate
-    # -  test accuracy of around 85% after 100 iterations
+    # - test accuracy of around 85% after 100 iterations
+
+    # init weight matrices randomly using standard Gaussian
+    V = np.random.normal(0, 1, 784 * 30).reshape((784, 30)) # V is 784 x 30
+    W = np.random.normal(0, 1, 30 * 10).reshape((30, 10))   # W is 30 x 10
+
+    # init bias terms to 0
+    b1 = np.zeros(30)   # b1 is 30 x 1
+    b2 = np.zeros(10)   # b2 is 10 x 1
+
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_train_onehot = np.eye(n_classes)[Y_train]
+
+    # perform max_iter_ iterations of gradient descent
+    for i in range(max_iter_):
+
+        ################ Forward Propagation ################
+        O, H = predict_probs(X_train, V, W, b1, b2)
+
+        ################ Back Propagation ################
+        # O - T
+        dCdZ = O - Y_train_onehot                       # 10000 x 10
+        # H.T * (O - T)
+        dCdW = np.dot(H.T, dCdZ)                        # 30 x 10
+        # 1 * dC/dZ                     
+        dCdw0 = np.dot(np.ones(dCdZ.shape[0]), dCdZ)    # 10 x 1
+        # dC/dZ * W.T
+        dCdH = np.dot(dCdZ, W.T)                        # 10000 x 30
+        # H * (1 - H) * dC/dH                           # H.shape   # 10000 x 30
+        dCdU = np.dot(dCdZ, W.T) * (1 - H)              # 10000 x 30
+        # X.T * dC/dU
+        dCdV = np.dot(X_train.T, dCdU)                  # 784 x 30
+        # 1 * dC/dU
+        dCdv0 = np.dot(np.ones(dCdU.shape[0]), dCdU)    # 30 x 1
+
+
+        # use average gradient to update weight matricies
+
+        # update weights
+        N = X_train.shape[0]
+        W = W - ((l_rate * dCdW) / N)
+        V = V - ((l_rate * dCdV) / N)
+
+        # update biases
+        b2 = b2 - ((l_rate * dCdw0) / N)
+        b1 = b1 - ((l_rate * dCdv0) / N)
+
+        # return the learned params
+        if (i == (max_iter_ - 1)):
+            return [V, W, b1, b2]
+
+##########  QUESTION 3  ############
+
+def q3():
+    
+    # Question 3(a)
+
+    # open train and test data
+    with open('mnist.pickle','rb') as f:
+        Xtrain, Ytrain, Xtest, Ytest = pickle.load(f)
+
+    # Use the first 10,000 points of the MNIST training data as validation data,
+    # and use the next 10,000 points as the reduced training data
+    X_val, Y_val = Xtrain[:10000], Ytrain[:10000]
+    X_train, Y_train = Xtrain[10000:20000], Ytrain[10000:20000]
+
+
+    # playing around with learning rates
+    # experiment_l_rate(X_train, Y_train, Xtest, Ytest, learning_rate)
+    learning_rate = 1.0
+
+    print '\nQuestion 3(a).'; print('-------------')
+    # bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=100, l_rate=learning_rate, max_iter_=10)
+
+
+
+    # Question 3(b)
+    
+    print '\nQuestion 3(b).'; print('-------------')
+    # bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=10)
+    # TODO 
+    # explain why accuracy is much lower than in part (a) and is 75%-80%
+
+
+
+    # Question 3(c)
+
+    print '\nQuestion 3(c).'; print('-------------')
+    # trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=50)
+    # trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_=10000, l_rate=learning_rate, max_iter_=200)
+    
+
+    # Question 3(d)
+
+    # Batch Gradient Descent: implementation
+
+    print '\nQuestion 3(d).'; print('-------------')
+
+    learning_rate = 1.0
+
+    best_acc_val = 0
+    best_params = []
 
     # train a neural net 10 times
+    for i in range(2): # TODO change to 10
         # Compute and print out the validation accuracy of each trained net
+        params = myBGD(X_train, Y_train, max_iter_=100, l_rate=learning_rate)
+        acc_val = get_score(X_val, Y_val, params)
+        print '\tvalidation accuracy of trained net {}: {}'.format(i + 1, acc_val)
 
         # Choose the trained net that has the maximum validation accuracy
+        if (acc_val > best_acc_val):
+            best_acc_val = acc_val
+            best_params = params
 
-    # Print out its validation accuracy, test accuracy and cross entropy. 
-    # Finally, print out the learning rate that you used
 
-    # Using the average
-    # gradient means that the optimal learning rate does not change much when the
+    # convert Y_train to one-hot encoding
+    n_classes = 10
+    Y_test_onehot = np.eye(n_classes)[Ytest]
+
+    # get prediction probabilities
+    # pred_prob, H = best_clf.predict_proba(X_train)
+    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
+
+    # calculate cross-entropy
+    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+
+    # Print out its validation accuracy, test accuracy and cross entropy
+    print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
+    print '\ttest accuracy: {}'.format(get_score(Xtest, Ytest, best_params))
+    print '\tcross entropy: {}'.format(cross_entropy)
+
+    # Print out the learning rate used
+    print '\tlearning rate used: {}'.format(learning_rate)
+
+
+
+    # Using the average gradient means that
+    # the optimal learning rate does not change much when the
     # size of the training set changes (which is why the same learing rate worked in
     # parts (a) and (b)). Explain why this is
     # TODO explain
