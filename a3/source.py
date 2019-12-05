@@ -447,7 +447,7 @@ the best validation accuracy.
 '''
 def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
 
-    learning_rate = 1.0
+    learning_rate = 10.0
 
     best_acc_val = 0
     best_params = []
