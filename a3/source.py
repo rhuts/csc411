@@ -269,15 +269,15 @@ def bestOfTenNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rat
             max_val_acc = val_acc
             best_clf = clf
 
-    # convert Ytest to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
-    pred_prob = best_clf.predict_proba(Xtest)
+    pred_prob = best_clf.predict_proba(X_train)
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print out its validation accuracy, test accuracy and cross entropy
     print '\n\tmaximum validation accuracy: {}'.format(max_val_acc)
@@ -309,20 +309,20 @@ def trainNN(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size_, l_rate, m
     clf.fit(X_train, Y_train)
     
 
-    # convert Ytest to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
-    pred_prob = clf.predict_proba(Xtest)
+    pred_prob = clf.predict_proba(X_train)
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print the final training and test accuracies and cross entropy
-    print '\ttraining accuracy (after 50 iterations): {}'.format(clf.score(X_train, Y_train))
-    print '\ttest accuracy (after 50 iterations): {}'.format(clf.score(Xtest, Ytest))
-    print '\tcross entropy (after 50 iterations): {}'.format(cross_entropy)
+    print '\ttraining accuracy (after {} iterations): {}'.format(max_iter_, clf.score(X_train, Y_train))
+    print '\ttest accuracy (after {} iterations): {}'.format(max_iter_, clf.score(Xtest, Ytest))
+    print '\tcross entropy (after {} iterations): {}'.format(max_iter_, cross_entropy)
 
 '''
 The softmax function.
@@ -343,8 +343,8 @@ and the values of the hidden layer.
 def predict_probs(X, V, W, b1, b2):
 
     # get probabilities
-    H = sigmoid(np.dot(X, V) + b1)
-    O = softmax(np.matmul(H, W) + b2)
+    H = sigmoid(np.add(np.matmul(X, V), b1))
+    O = softmax(np.add(np.matmul(H, W), b2))
 
     # return probabilities
     return O, H
@@ -410,19 +410,19 @@ def myBGD(X_train, Y_train, max_iter_, l_rate, init_params, n_hidden=30):
 
         ################ Back Propagation ################
         # O - T
-        dCdZ = O - Y_train_onehot                       # 10000 x 10
+        dCdZ = np.subtract(O, Y_train_onehot)           # 10000 x 10
         # H.T * (O - T)
         dCdW = np.dot(H.T, dCdZ)                        # 30 x 10
         # 1 * dC/dZ                     
-        dCdw0 = np.sum(dCdZ)                            # 10 x 1
+        dCdw0 = np.sum(dCdZ, axis=0)                    # 10 x 1
         # dC/dZ * W.T
         dCdH = np.dot(dCdZ, W.T)                        # 10000 x 30
         # H * (1 - H) * dC/dH                           # H.shape   # 10000 x 30
-        dCdU = np.dot(dCdZ, W.T) * (1 - H)              # 10000 x 30
+        dCdU = H * (1 - H) * dCdH                       # 10000 x 30
         # X.T * dC/dU
         dCdV = np.dot(X_train.T, dCdU)                  # 784 x 30
         # 1 * dC/dU
-        dCdv0 = np.dot(np.ones(dCdU.shape[0]), dCdU)    # 30 x 1
+        dCdv0 = np.sum(dCdU, axis=0)                    # 30 x 1 
 
 
         # use average gradient to update weight matricies
@@ -466,15 +466,15 @@ def bestOfTenMyBGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest):
             best_params = params
 
 
-    # convert Y_test to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
-    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
+    pred_prob, H = predict_probs(X_train, best_params[0], best_params[1], best_params[2], best_params[3])
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print out its validation accuracy, test accuracy and cross entropy
     print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
@@ -571,16 +571,16 @@ def bestOfTenMySGD(X_train, Y_train, X_val, Y_val, Xtest, Ytest, batch_size, n_e
             best_params = params
 
 
-    # convert Y_test to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
     # pred_prob, H = best_clf.predict_proba(X_train)
-    pred_prob, H = predict_probs(Xtest, best_params[0], best_params[1], best_params[2], best_params[3])
+    pred_prob, H = predict_probs(X_train, best_params[0], best_params[1], best_params[2], best_params[3])
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print out its validation accuracy, test accuracy and cross entropy
     print '\n\tmaximum validation accuracy: {}'.format(best_acc_val)
@@ -658,16 +658,15 @@ def q3():
     print '\nQuestion 3(f).'; print('-------------')
     params = mySGD(Xtrain, Ytrain, Xtest, Ytest, l_rate=learning_rate, batch_size=100, n_epochs=100, verbose=True, n_hidden=100)
 
-    # convert Ytest to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
-    # pred_prob, H = best_clf.predict_proba(X_train)
-    pred_prob, H = predict_probs(Xtest, params[0], params[1], params[2], params[3])
+    pred_prob, H = predict_probs(X_train, params[0], params[1], params[2], params[3])
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print out the final training accuracy, test accuracy and cross entropy
     print '\n\tfinal train accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
@@ -680,16 +679,15 @@ def q3():
     print '\nQuestion 3(g).'; print('-------------')
     params = mySGD(Xtrain, Ytrain, Xtest, Ytest, l_rate=learning_rate, batch_size=Xtrain.shape[0], n_epochs=100, verbose=True, n_hidden=100)
 
-    # convert Ytest to one-hot encoding
+    # convert Y_train to one-hot encoding
     n_classes = 10
-    Y_test_onehot = np.eye(n_classes)[Ytest]
+    Y_train_onehot = np.eye(n_classes)[Y_train]
 
     # get prediction probabilities
-    # pred_prob, H = best_clf.predict_proba(X_train)
-    pred_prob, H = predict_probs(Xtest, params[0], params[1], params[2], params[3])
+    pred_prob, H = predict_probs(X_train, params[0], params[1], params[2], params[3])
 
     # calculate cross-entropy
-    cross_entropy = -np.sum(Y_test_onehot * np.log(pred_prob))
+    cross_entropy = -np.sum(Y_train_onehot * np.log(pred_prob))
 
     # Print out the final training accuracy, test accuracy and cross entropy
     print '\n\tfinal train accuracy: {}'.format(get_score(Xtrain, Ytrain, params))
